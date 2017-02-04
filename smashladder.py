@@ -161,3 +161,37 @@ def retrieve_ignored_users(cookie_jar):
         ignored_users.append(user['username'])
 
     return ignored_users
+
+def handle_private_chat_message(message):
+    message = json.loads(message)
+    chat_data = message['private_chat']
+
+    for user_id in chat_data:
+        if 'username' in chat_data[user_id]:
+            username = chat_data[user_id]['username']
+        else:
+            username = OWN_USERNAME
+        chat_messages = chat_data[user_id]['chat_messages']
+        for message_key in chat_messages:
+            chat_message = chat_messages[message_key]['message']
+
+    # if your own message, you don't get a username
+    if username:
+        print('[private chat]', username + ':', chat_message)
+    else:
+        print('[private chat]', username + ':', chat_message)
+
+def handle_match_chat_message(message):
+    message = json.loads(message)
+
+    for match_id in message['current_matches']:
+        # you get id:null when someone starts typing in the chat
+        match_chat_data = message['current_matches'][match_id]['chat']['chat_messages']
+        if type(match_chat_data) is dict:
+            for chat_message_id in match_chat_data:
+                if (re.match('[0-9]{7,9}', chat_message_id)):
+                    chat_message = match_chat_data[chat_message_id]['message']
+                    username = match_chat_data[chat_message_id]['player']['username']
+
+    if 'chat_message' in locals():
+        print('[match chat]', username + ':', chat_message)

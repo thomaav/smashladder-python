@@ -162,6 +162,7 @@ def retrieve_ignored_users(cookie_jar):
 
     return ignored_users
 
+
 def handle_private_chat_message(message):
     message = json.loads(message)
     chat_data = message['private_chat']
@@ -181,17 +182,47 @@ def handle_private_chat_message(message):
     else:
         print('[private chat]', username + ':', chat_message)
 
+
 def handle_match_chat_message(message):
     message = json.loads(message)
 
     for match_id in message['current_matches']:
-        # you get id:null when someone starts typing in the chat
         match_chat_data = message['current_matches'][match_id]['chat']['chat_messages']
+        # you also receive data for someone starts/stops typing, which
+        # should be ignored
         if type(match_chat_data) is dict:
             for chat_message_id in match_chat_data:
-                if (re.match('[0-9]{7,9}', chat_message_id)):
+                if re.match('[0-9]{7,9}', chat_message_id):
                     chat_message = match_chat_data[chat_message_id]['message']
                     username = match_chat_data[chat_message_id]['player']['username']
 
     if 'chat_message' in locals():
         print('[match chat]', username + ':', chat_message)
+
+
+def handle_open_challenges(cookie_jar, message):
+    message = json.loads(message)
+
+    is_ranked = []
+    ladder_name = []
+    opponent_username = []
+    opponent_country = []
+    match_ids = []
+
+    for match_id in message['open_challenges']:
+        if re.match('[0-9]{7,9}', match_id):
+            match_ids.append(match_id)
+            challenge_info = message['open_challenges'][match_id]
+            is_ranked.append(challenge_info['is_ranked'])
+            ladder_name.append(challenge_info['ladder_name'])
+            opponent_username.append(challenge_info['player2']['username'])
+            opponent_country.append(challenge_info['player2']['location']['country']['name'])
+
+    for i in range(len(match_ids)):
+        print(opponent_username[i], 'from', opponent_country[i], 'has challenged you to', ladder_name[i], '(ranked (' + str(is_ranked[i]) + '))')
+
+    for i, country in enumerate(opponent_country):
+        if country in WHITELISTED_COUNTRIES:
+            accept_match_challenge(cookie_jar, match_ids[i])
+            print('Accepted challenge from', opponent_username[i], 'from', opponent_country[i] + '.')
+            break;

@@ -50,3 +50,11 @@ def save_cookies_to_file(cookie_jar, filename):
 def load_cookies_from_file(filename):
     with open(filename, 'rb') as f:
         return pickle.load(f)
+
+
+def cookie_jar_to_string(cookie_jar):
+    cookie = 'timezone=Europe/Berlin; '
+    cookie += 'lad_sock_user_id=' + cookie_jar['lad_sock_user_id'] + '; '
+    cookie += 'lad_sock_hash=' + cookie_jar['lad_sock_hash'] + '; '
+    cookie += 'lad_sock_remember_me=' + cookie_jar['lad_sock_remember_me'] + '; '
+    return cookie

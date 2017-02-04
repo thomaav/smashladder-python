@@ -1,4 +1,5 @@
 from smashladder_requests import *
+from smashladder_sockets import *
 from smashladder import *
 
 def main():
@@ -11,6 +12,9 @@ def main():
     ## accept_match_challenge
     # print(retrieve_ignored_users(cookie_jar))
     # challenge_active_searches_friendlies(cookie_jar)
+    # print(cookie_jar_to_string(cookie_jar))
+
+    connect_to_smashladder(cookie_jar)
 
 if __name__ == '__main__':
     main()

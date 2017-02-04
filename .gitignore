@@ -1,0 +1,4 @@
+*.dat
+*.ini
+*.pyc
+__pycache__

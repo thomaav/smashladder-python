@@ -253,3 +253,5 @@ def finished_chatting_with_match(cookie_jar, match_id):
     content = { 'match_id': match_id }
     http_post_request('https://www.smashladder.com/matchmaking/finished_chatting_with_match',
                       content, cookie_jar)
+    builtins.current_match_id = None
+    builtins.in_match = False

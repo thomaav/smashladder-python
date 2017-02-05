@@ -1,17 +1,18 @@
 import time
 import threading
+import builtins
 from smashladder_requests import *
 from smashladder_sockets import *
 from smashladder import *
 
 
-current_match_id = None
-in_match = False
+builtins.current_match_id = None
+builtins.in_match = False
 
 
 def matchmaking_loop(cookie_jar):
     while True:
-        if in_match:
+        if builtins.in_match:
             print('Already in match, not going to start matchmaking.')
             time.sleep(5)
         else:
@@ -22,7 +23,7 @@ def matchmaking_loop(cookie_jar):
 def challenge_loop(cookie_jar):
     while True:
         print(current_match_id, in_match)
-        if in_match:
+        if builtins.in_match:
             print('Already in match, will not challenge people to matches.')
             time.sleep(5)
         else:

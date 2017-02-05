@@ -1,8 +1,9 @@
-from smashladder_requests import *
-from local import *
 import main
 import re
 import json
+import builtins
+from smashladder_requests import *
+from local import *
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -109,8 +110,8 @@ def retrieve_challenges_awaiting_reply(cookie_jar):
 
 
 def accept_match_challenge(cookie_jar, match_id):
-    main.current_match_id = match_id
-    main.in_match = True
+    builtins.current_match_id = match_id
+    builtins.in_match = True
 
     content = { 'accept': '1',
                 'match_id': match_id,
@@ -194,8 +195,8 @@ def handle_match_message(message):
     # print a message and set globals
     for match_id in message['current_matches']:
         if 'start_time' in message['current_matches'][match_id]:
-            main.current_match_id = match_id
-            main.in_match = True
+            builtins.current_match_id = match_id
+            builtins.in_match = True
             return
 
     for match_id in message['current_matches']:

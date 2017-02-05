@@ -1,5 +1,6 @@
 from smashladder_requests import *
 from local import *
+import main
 import re
 import json
 
@@ -108,6 +109,9 @@ def retrieve_challenges_awaiting_reply(cookie_jar):
 
 
 def accept_match_challenge(cookie_jar, match_id):
+    main.current_match_id = match_id
+    main.in_match = True
+
     content = { 'accept': '1',
                 'match_id': match_id,
                 'host_code': '' }
@@ -183,8 +187,16 @@ def handle_private_chat_message(message):
         print('[private chat]', username + ':', chat_message)
 
 
-def handle_match_chat_message(message):
+def handle_match_message(message):
     message = json.loads(message)
+
+    # if received message is about getting an answer to a challenge,
+    # print a message and set globals
+    for match_id in message['current_matches']:
+        if 'start_time' in message['current_matches'][match_id]:
+            main.current_match_id = match_id
+            main.in_match = True
+            return
 
     for match_id in message['current_matches']:
         match_chat_data = message['current_matches'][match_id]['chat']['chat_messages']

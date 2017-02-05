@@ -46,7 +46,10 @@ def main():
     main_socket_thread.start()
 
     while True:
-        time.sleep(100)
+        if builtins.in_match:
+            report_friendly_done(cookie_jar, builtins.current_match_id)
+            finished_chatting_with_match(cookie_jar, builtins.current_match_id)
+        time.sleep(3)
 
 
 if __name__ == '__main__':

@@ -239,3 +239,17 @@ def handle_open_challenges(cookie_jar, message):
             accept_match_challenge(cookie_jar, match_ids[i])
             print('Accepted challenge from', opponent_username[i], 'from', opponent_country[i] + '.')
             break;
+
+
+def report_friendly_done(cookie_jar, match_id):
+    content = { 'won': 4,
+                'message': '',
+                'match_id': match_id }
+    http_post_request('https://www.smashladder.com/matchmaking/report_match',
+                      content, cookie_jar)
+
+
+def finished_chatting_with_match(cookie_jar, match_id):
+    content = { 'match_id', match_id }
+    http_post_request('https://www.smashladder.com/matchmaking/finished_chatting_with_match',
+                      content, cookie_jar)

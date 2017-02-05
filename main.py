@@ -1,5 +1,4 @@
 import time
-import threading
 import builtins
 from smashladder_requests import *
 # avoid circular import of cookie_jar

@@ -274,7 +274,6 @@ def matchmaking_loop(cookie_jar):
 
 def challenge_loop(cookie_jar):
     while True:
-        print(current_match_id, in_match)
         if builtins.in_match:
             print('Already in match, will not challenge people to matches.')
             time.sleep(5)

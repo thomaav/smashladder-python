@@ -1,5 +1,6 @@
 import sys
 import threading
+import os.path
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, QDesktopWidget, QLineEdit, QFormLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt
@@ -84,53 +85,57 @@ class MainWindow(QWidget):
         self.setWindowIcon(QIcon('conf/smashladder.png'))
 
         # button to start all loops and matchmake
-        mmbtn = QPushButton('Start matchmaking', self)
-        mmbtn.clicked.connect(self.start_matchmaking)
-        mmbtn.resize(mmbtn.sizeHint())
+        self.mm_button = QPushButton('Start matchmaking', self)
+        self.mm_button.clicked.connect(self.start_matchmaking)
+        self.mm_button.resize(self.mm_button.sizeHint())
         x_center = 50 * (self.width() // 100)
         y_center = 5 * (self.height() // 100)
-        mmbtn.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
-        move_widget(mmbtn, x_center, y_center)
+        self.mm_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
+        move_widget(self.mm_button, x_center, y_center)
 
-        # log in button
-        relog_button = QPushButton('Log in', self)
+        # log in button and window
+        self.login_window = LoginWindow()
+        if os.path.isfile(COOKIE_FILE):
+            self.login_window.hide()
+
+        self.relog_button = QPushButton('Log in', self)
         x_center = 88 * (self.width() // 100)
         y_center = 30 * (self.height() // 100)
-        relog_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
-        move_widget(relog_button, x_center, y_center)
-        relog_button.clicked.connect(lambda: login_to_smashladder)
+        self.relog_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
+        move_widget(self.relog_button, x_center, y_center)
+        self.relog_button.clicked.connect(lambda: self.login_window.show())
 
         # add high ping user
-        high_ping_username = QLineEdit(self)
+        self.high_ping_username = QLineEdit(self)
         x_center = 60 * (self.width() // 100)
         y_center = 50 * (self.height() // 100)
-        move_widget(high_ping_username, x_center, y_center)
+        move_widget(self.high_ping_username, x_center, y_center)
 
-        high_ping_button = QPushButton('Add high ping user', self)
+        self.high_ping_button = QPushButton('Add high ping user', self)
         x_center = 88 * (self.width() // 100)
         y_center = 50 * (self.height() // 100)
-        high_ping_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
-        move_widget(high_ping_button, x_center, y_center - 5)
+        self.high_ping_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
+        move_widget(self.high_ping_button, x_center, y_center - 5)
 
         # whitelist country
-        whitelist_country = QLineEdit(self)
+        self.whitelist_country = QLineEdit(self)
         x_center = 60 * (self.width() // 100)
         y_center = 70 * (self.height() // 100)
-        move_widget(whitelist_country, x_center, y_center)
+        move_widget(self.whitelist_country, x_center, y_center)
 
-        whitelist_country_button = QPushButton('Whitelist country', self)
+        self.whitelist_country_button = QPushButton('Whitelist country', self)
         x_center = 88 * (self.width() // 100)
         y_center = 70 * (self.height() // 100)
-        whitelist_country_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
-        move_widget(whitelist_country_button, x_center, y_center - 5)
+        self.whitelist_country_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
+        move_widget(self.whitelist_country_button, x_center, y_center - 5)
 
         # button to quit everything
-        qbtn = QPushButton('Quit', self)
-        qbtn.clicked.connect(QCoreApplication.instance().quit)
-        qbtn.resize(qbtn.sizeHint())
+        self.quit_button = QPushButton('Quit', self)
+        self.quit_button.clicked.connect(QCoreApplication.instance().quit)
+        self.quit_button.resize(self.quit_button.sizeHint())
         x_center = 50 * (self.width() // 100)
         y_center = 95 * (self.height() // 100)
-        move_widget(qbtn, x_center, y_center)
+        move_widget(self.quit_button, x_center, y_center)
 
         self.show()
 
@@ -157,4 +162,3 @@ class MainWindow(QWidget):
 
 app = QApplication(sys.argv)
 main_window = MainWindow()
-login_window = LoginWindow()

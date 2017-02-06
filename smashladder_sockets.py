@@ -1,7 +1,7 @@
 import json
 import websocket
-from smashladder_requests import cookie_jar_to_string
-from smashladder import *
+from local import cookie_jar_to_string
+
 
 def on_message(ws, message):
     if '\"authentication\":false' in message:
@@ -18,8 +18,10 @@ def on_message(ws, message):
 def on_error(ws, error):
     print(error)
 
+
 def on_close(ws):
     print('WebSocket to smashladder closed.')
+
 
 def connect_to_smashladder(cookie_jar):
     websocket.enableTrace(True)

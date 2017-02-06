@@ -1,6 +1,6 @@
 import requests
-import pickle
 from getpass import getpass
+from local import save_cookies_to_file, COOKIE_FILE
 
 
 DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -31,30 +31,15 @@ def get_login_credentials():
     return username, password
 
 
-def login_to_smashladder():
+def login_to_smashladder(username='', password=''):
     # get credentials
-    username, password = get_login_credentials()
+    if not (username and password):
+        username, password = get_login_credentials()
     login_content =  { 'username': username,
-                      'password': password,
-                      'remember': '1' }
+                       'password': password,
+                       'remember': '1' }
 
     response = http_post_request('https://smashladder.com/log-in', login_content)
+    save_cookies_to_file(response.cookies, COOKIE_FILE)
+
     return response.cookies
-
-
-def save_cookies_to_file(cookie_jar, filename):
-    with open(filename, 'wb') as f:
-        pickle.dump(cookie_jar, f)
-
-
-def load_cookies_from_file(filename):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
-
-
-def cookie_jar_to_string(cookie_jar):
-    cookie = 'timezone=Europe/Berlin; '
-    cookie += 'lad_sock_user_id=' + cookie_jar['lad_sock_user_id'] + '; '
-    cookie += 'lad_sock_hash=' + cookie_jar['lad_sock_hash'] + '; '
-    cookie += 'lad_sock_remember_me=' + cookie_jar['lad_sock_remember_me'] + '; '
-    return cookie

@@ -1,9 +1,14 @@
+import builtins
+import json
 import main
 import re
-import json
-import builtins
-from smashladder_requests import *
+import time
 from local import *
+from smashladder_requests import *
+
+
+builtins.current_match_id = None
+builtins.in_match = False
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -255,3 +260,24 @@ def finished_chatting_with_match(cookie_jar, match_id):
                       content, cookie_jar)
     builtins.current_match_id = None
     builtins.in_match = False
+
+
+def matchmaking_loop(cookie_jar):
+    while True:
+        if builtins.in_match:
+            print('Already in match, not going to start matchmaking.')
+            time.sleep(5)
+        else:
+            match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
+            time.sleep(305)
+
+
+def challenge_loop(cookie_jar):
+    while True:
+        print(current_match_id, in_match)
+        if builtins.in_match:
+            print('Already in match, will not challenge people to matches.')
+            time.sleep(5)
+        else:
+            challenge_active_searches_friendlies(cookie_jar)
+            time.sleep(5)

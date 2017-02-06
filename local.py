@@ -1,3 +1,6 @@
+from smashladder_requests import load_cookies_from_file
+
+cookie_jar = load_cookies_from_file("conf/cookies.dat")
 OWN_USERNAME = 'tourniquet'
 
 WHITELISTED_COUNTRIES = ( 'Sweden',

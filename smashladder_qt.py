@@ -3,8 +3,7 @@ import threading
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, QDesktopWidget, QLineEdit
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QCoreApplication, QPoint
-from main import cookie_jar, matchmaking_loop, challenge_loop
-from smashladder import begin_matchmaking
+from smashladder import matchmaking_loop, challenge_loop
 from smashladder_sockets import connect_to_smashladder
 from smashladder_requests import login_to_smashladder
 from local import *

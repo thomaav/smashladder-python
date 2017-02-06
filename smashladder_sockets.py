@@ -1,8 +1,7 @@
-import websocket
 import json
+import websocket
 from smashladder_requests import cookie_jar_to_string
 from smashladder import *
-from main import cookie_jar
 
 def on_message(ws, message):
     if '\"authentication\":false' in message:

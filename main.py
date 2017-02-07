@@ -1,10 +1,11 @@
 import builtins
+import smashladder_qt
+import sys
 import time
-from smashladder_qt import *
 
 
 def main():
-    sys.exit(app.exec_())
+    sys.exit(smashladder_qt.app.exec_())
 
 
 if __name__ == '__main__':

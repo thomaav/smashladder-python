@@ -1,19 +1,23 @@
+import local
 import sys
+import smashladder
+import smashladder_requests
+import smashladder_sockets
 import threading
 import os.path
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, QDesktopWidget, QLineEdit, QFormLayout
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt
 from PyQt5 import uic
-from smashladder import matchmaking_loop, challenge_loop
-from smashladder_sockets import connect_to_smashladder
-from smashladder_requests import login_to_smashladder
-from local import *
 
 
 BUTTON_SIZE_X = 100
 BUTTON_SIZE_Y = 26
 MAIN_UI_FILE = 'conf/mainwindow.ui'
+
+
+def qt_print(text):
+    main_window.matchmaking_info.append(text)
 
 
 def move_widget(widget, x_center, y_center):
@@ -66,7 +70,7 @@ class LoginWindow(QWidget):
             # do nothing if no username or password supplied
             return
 
-        login_to_smashladder(username, password)
+        smashladder_requests.login_to_smashladder(username, password)
         self.close()
 
 
@@ -91,7 +95,7 @@ class MainWindow(QWidget):
 
         # log in button and window
         self.login_window = LoginWindow()
-        if os.path.isfile(COOKIE_FILE):
+        if os.path.isfile(local.COOKIE_FILE):
             self.login_window.hide()
         self.relog_button.clicked.connect(lambda: self.login_window.show())
 
@@ -103,11 +107,11 @@ class MainWindow(QWidget):
 
 
     def start_matchmaking(self):
-        matchmaking_thread = threading.Thread(target=matchmaking_loop, args=(cookie_jar,))
+        matchmaking_thread = threading.Thread(target=smashladder.matchmaking_loop, args=(local.cookie_jar,))
         matchmaking_thread.daemon = True
-        challenge_thread = threading.Thread(target=challenge_loop, args=(cookie_jar,))
+        challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(local.cookie_jar,))
         challenge_thread.daemon = True
-        main_socket_thread = threading.Thread(target=connect_to_smashladder, args=(cookie_jar,))
+        main_socket_thread = threading.Thread(target=smashladder_sockets.connect_to_smashladder, args=(local.cookie_jar,))
         main_socket_thread.daemon = True
 
         matchmaking_thread.start()
@@ -124,16 +128,16 @@ class MainWindow(QWidget):
 
     def whitelist_country_wrapper(self):
         country = self.whitelist_country.text()
-        if country and country not in WHITELISTED_COUNTRIES:
-            whitelist_country(country)
-            self.config.info.append(country + ' added to whitelist.')
+        if country and country not in local.WHITELISTED_COUNTRIES:
+            local.whitelist_country(country)
+            self.config_info.append(country + ' added to whitelist.')
         self.whitelist_country.setText('')
 
 
     def add_high_ping_player_wrapper(self):
         username = self.high_ping_username.text()
-        if username and username not in HIGH_PING_PLAYERS:
-            add_high_ping_player(username)
+        if username and username not in local.HIGH_PING_PLAYERS:
+            local.add_high_ping_player(username)
             self.config_info.append(username + ' added to high_ping.')
         self.high_ping_username.setText('')
 

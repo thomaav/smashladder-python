@@ -158,7 +158,7 @@ def challenge_active_searches_friendlies(cookie_jar):
 
             http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
                               content, cookie_jar)
-            print("Trying to challenge", opponent_username, "from", opponent_country, "to", ladder_name + "\n")
+            print("Trying to challenge", opponent_username, "from", opponent_country, "to", ladder_name)
 
 
 def retrieve_ignored_users(cookie_jar):

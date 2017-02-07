@@ -1,7 +1,8 @@
 import json
+import local
+import smashladder
+import smashladder_qt
 import websocket
-from local import cookie_jar_to_string, cookie_jar
-from smashladder import handle_private_chat_message, handle_match_message, handle_open_challenges
 
 
 def on_message(ws, message):
@@ -9,11 +10,11 @@ def on_message(ws, message):
         print('Authentication: false. Exiting.')
         exit(1)
     elif 'private_chat' in message:
-        handle_private_chat_message(message)
+        smashladder.handle_private_chat_message(message)
     elif 'current_matches' in message:
-        handle_match_message(message)
+        smashladder.handle_match_message(message)
     elif 'open_challenges' in message:
-        handle_open_challenges(cookie_jar, message)
+        smashladder.handle_open_challenges(local.cookie_jar, message)
 
 
 def on_error(ws, error):
@@ -30,5 +31,6 @@ def connect_to_smashladder(cookie_jar):
                                 on_message = on_message,
                                 on_error = on_error,
                                 on_close = on_close,
-                                cookie = cookie_jar_to_string(cookie_jar))
+                                cookie = local.cookie_jar_to_string(local.cookie_jar))
     ws.run_forever()
+

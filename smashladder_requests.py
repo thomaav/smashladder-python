@@ -1,6 +1,6 @@
+import local
 import requests
 from getpass import getpass
-from local import save_cookies_to_file, COOKIE_FILE
 
 
 DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -40,6 +40,6 @@ def login_to_smashladder(username='', password=''):
                        'remember': '1' }
 
     response = http_post_request('https://smashladder.com/log-in', login_content)
-    save_cookies_to_file(response.cookies, COOKIE_FILE)
+    local.save_cookies_to_file(response.cookies, local.COOKIE_FILE)
 
     return response.cookies

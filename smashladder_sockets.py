@@ -7,7 +7,7 @@ import websocket
 
 def on_message(ws, message):
     if '\"authentication\":false' in message:
-        print('Authentication: false. Exiting.')
+        smashladder_qt.qt_print('Authentication: false. Exiting.')
         exit(1)
     elif 'private_chat' in message:
         smashladder.handle_private_chat_message(message)

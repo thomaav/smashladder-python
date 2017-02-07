@@ -1,6 +1,7 @@
 import builtins
 import json
 import main
+import smashladder_qt
 import re
 import time
 from local import *
@@ -40,7 +41,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
             own_match_id = match_id
 
     if (own_match_id):
-        print("Success! Matchmaking began in begin_matchmaking.")
+        smashladder_qt.qt_print("Success! Matchmaking began in begin_matchmaking.")
         return own_match_id
     else:
         return("Failure! Matchmaking aborted in begin_matchmaking.")
@@ -54,9 +55,9 @@ def quit_matchmaking(cookie_jar, match_id):
     response_body = json.loads(response.text)
 
     if 'success' in response_body:
-        print('Success! Quit matchmaking with id:', match_id)
+        smashladder_qt.qt_print('Success! Quit matchmaking with id: ' + match_id)
     else:
-        print('Failure! Could not quit match with id:', match_id)
+        smashladder_qt.qt_print('Failure! Could not quit match with id: ' + match_id)
 
 
 def retrieve_active_searches(cookie_jar):
@@ -158,7 +159,7 @@ def challenge_active_searches_friendlies(cookie_jar):
 
             http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
                               content, cookie_jar)
-            print("Trying to challenge", opponent_username, "from", opponent_country, "to", ladder_name)
+            smashladder_qt.qt_print("Trying to challenge " + opponent_username + " from " + opponent_country + " to " + ladder_name)
 
 
 def retrieve_ignored_users(cookie_jar):
@@ -188,9 +189,9 @@ def handle_private_chat_message(message):
 
     # if your own message, you don't get a username
     if username:
-        print('[private chat]', username + ':', chat_message)
+        smashladder_qt.qt_print('[private chat] ' + username + ': ' + chat_message)
     else:
-        print('[private chat]', username + ':', chat_message)
+        smashladder_qt.qt_print('[private chat] ' + username + ': ' + chat_message)
 
 
 def handle_match_message(message):
@@ -215,7 +216,7 @@ def handle_match_message(message):
                     username = match_chat_data[chat_message_id]['player']['username']
 
     if 'chat_message' in locals():
-        print('[match chat]', username + ':', chat_message)
+        smashladder_qt.qt_print('[match chat] ' + username + ': ', chat_message)
 
 
 def handle_open_challenges(cookie_jar, message):
@@ -237,12 +238,12 @@ def handle_open_challenges(cookie_jar, message):
             opponent_country.append(challenge_info['player2']['location']['country']['name'])
 
     for i in range(len(match_ids)):
-        print(opponent_username[i], 'from', opponent_country[i], 'has challenged you to', ladder_name[i], '(ranked (' + str(is_ranked[i]) + '))')
+        smashladder_qt.qt_print(opponent_username[i] + ' from ' + opponent_country[i] + ' has challenged you to ' + ladder_name[i] + ' (ranked (' + str(is_ranked[i]) + '))')
 
     for i, country in enumerate(opponent_country):
         if country in WHITELISTED_COUNTRIES:
             accept_match_challenge(cookie_jar, match_ids[i])
-            print('Accepted challenge from', opponent_username[i], 'from', opponent_country[i] + '.')
+            smashladder_qt.qt_print('Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] + '.')
             break;
 
 
@@ -265,7 +266,7 @@ def finished_chatting_with_match(cookie_jar, match_id):
 def matchmaking_loop(cookie_jar):
     while True:
         if builtins.in_match:
-            print('Already in match, not going to start matchmaking.')
+            smashladder_qt.qt_print('Already in match, not going to start matchmaking.')
             time.sleep(5)
         else:
             match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
@@ -275,7 +276,7 @@ def matchmaking_loop(cookie_jar):
 def challenge_loop(cookie_jar):
     while True:
         if builtins.in_match:
-            print('Already in match, will not challenge people to matches.')
+            smashladder_qt.qt_print('Already in match, will not challenge people to matches.')
             time.sleep(5)
         else:
             challenge_active_searches_friendlies(cookie_jar)

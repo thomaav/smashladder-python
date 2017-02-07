@@ -2,7 +2,6 @@ import local
 import sys
 import smashladder
 import smashladder_requests
-import smashladder_sockets
 import threading
 import os.path
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, QDesktopWidget, QLineEdit, QFormLayout
@@ -18,7 +17,8 @@ MAIN_UI_FILE = 'conf/mainwindow.ui'
 
 def qt_print(text):
     main_window.matchmaking_info.append(text)
-
+# import here after initialization to receive it in smashladder_sockets
+import smashladder_sockets
 
 def move_widget(widget, x_center, y_center):
     qr = widget.frameGeometry()

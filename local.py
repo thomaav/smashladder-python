@@ -67,9 +67,9 @@ def whitelist_country(country):
         pickle.dump(WHITELISTED_COUNTRIES, f)
 
 
-def add_highping_player(player):
+def add_high_ping_player(player):
     HIGH_PING_PLAYERS.append(player)
-    with open(HIGH_PING_PLAYERS, 'wb') as f:
+    with open(HIGH_PING_PLAYERS_FILE, 'wb') as f:
         pickle.dump(HIGH_PING_PLAYERS, f)
 
 

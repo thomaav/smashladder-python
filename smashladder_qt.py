@@ -96,7 +96,8 @@ class MainWindow(QWidget):
         self.relog_button.clicked.connect(lambda: self.login_window.show())
 
         # add high ping and whitelist country
-
+        self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
+        self.high_ping_button.clicked.connect(self.add_high_ping_player_wrapper)
 
         self.show()
 
@@ -119,6 +120,20 @@ class MainWindow(QWidget):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+
+    def whitelist_country_wrapper(self):
+        country = self.whitelist_country.text()
+        if country and country not in WHITELISTED_COUNTRIES:
+            whitelist_country(country)
+        print(WHITELISTED_COUNTRIES)
+
+
+    def add_high_ping_player_wrapper(self):
+        username = self.high_ping_username.text()
+        if username and username not in HIGH_PING_PLAYERS:
+            add_high_ping_player(username)
+        print(HIGH_PING_PLAYERS)
 
 
 app = QApplication(sys.argv)

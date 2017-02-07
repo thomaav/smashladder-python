@@ -126,6 +126,7 @@ class MainWindow(QWidget):
         country = self.whitelist_country.text()
         if country and country not in WHITELISTED_COUNTRIES:
             whitelist_country(country)
+        self.whitelist_country.setText('')
         print(WHITELISTED_COUNTRIES)
 
 
@@ -133,6 +134,7 @@ class MainWindow(QWidget):
         username = self.high_ping_username.text()
         if username and username not in HIGH_PING_PLAYERS:
             add_high_ping_player(username)
+        self.high_ping_username.setText('')
         print(HIGH_PING_PLAYERS)
 
 

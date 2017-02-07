@@ -1,4 +1,8 @@
 import pickle
+import os.path
+
+
+OWN_USERNAME = 'tourniquet'
 
 
 def save_cookies_to_file(cookie_jar, filename):
@@ -22,29 +26,51 @@ def cookie_jar_to_string(cookie_jar):
 COOKIE_FILE = 'conf/cookies.dat'
 cookie_jar = load_cookies_from_file(COOKIE_FILE)
 
-OWN_USERNAME = 'tourniquet'
+WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
+HIGH_PING_PLAYERS_FILE = 'conf/high_ping_players'
 
-WHITELISTED_COUNTRIES = ( 'Sweden',
-                          'Norway',
-                          'Denmark',
-                          'Netherlands',
-                          'Finland',
-                          'Sverige' )
+if os.path.isfile(WHITELISTED_COUNTRIES_FILE):
+    with open(WHITELISTED_COUNTRIES_FILE, 'rb') as f:
+        WHITELISTED_COUNTRIES = pickle.load(f)
+else:
+    WHITELISTED_COUNTRIES = [ 'Sweden',
+                              'Norway',
+                              'Denmark',
+                              'Netherlands',
+                              'Finland',
+                              'Sverige' ]
 
-HIGH_PING_PLAYERS = ( 'grandma',
-                     'jatuni',
-                      'Djentalist',
-                      'Nibl33t',
-                      'chaosmessenger',
-                      'Grodan',
-                      'cornflaco',
-                      'EarlyPeso',
-                      'lelkan',
-                      'Vesp',
-                      'vliegende1snor',
-                      'pwnagewolf',
-                      'Tipsi',
-                      'BK333',
-                      'w4zab1' )
+if os.path.isfile(HIGH_PING_PLAYERS_FILE):
+    with open(HIGH_PING_PLAYERS_FILE, 'rb') as f:
+        HIGH_PING_PLAYERS = pickle.load(f)
+else:
+    HIGH_PING_PLAYERS = [ 'grandma',
+                          'jatuni',
+                          'Djentalist',
+                          'Nibl33t',
+                          'chaosmessenger',
+                          'Grodan',
+                          'cornflaco',
+                          'EarlyPeso',
+                          'lelkan',
+                          'Vesp',
+                          'vliegende1snor',
+                          'pwnagewolf',
+                          'Tipsi',
+                          'BK333',
+                          'w4zab1' ]
+
+
+def whitelist_country(country):
+    WHITELISTED_COUNTRIES.append(country)
+    with open(WHITELISTED_COUNTRIES_FILE, 'wb') as f:
+        pickle.dump(WHITELISTED_COUNTRIES, f)
+
+
+def add_highping_player(player):
+    HIGH_PING_PLAYERS.append(player)
+    with open(HIGH_PING_PLAYERS, 'wb') as f:
+        pickle.dump(HIGH_PING_PLAYERS, f)
+
 
 WHITELISTED_GAMES = { 'Melee': '2', }

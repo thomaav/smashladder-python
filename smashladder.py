@@ -47,6 +47,12 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
         return("Failure! Matchmaking aborted in begin_matchmaking.")
 
 
+def enter_match(match_id):
+    builtins.current_match_id = match_id
+    builtins.in_match = True
+    smashladder_qt.qt_change_match_status(builtins.current_match_id, builtins.in_match)
+
+
 def quit_matchmaking(cookie_jar, match_id):
     content = { 'match_id': match_id }
 
@@ -116,8 +122,7 @@ def retrieve_challenges_awaiting_reply(cookie_jar):
 
 
 def accept_match_challenge(cookie_jar, match_id):
-    builtins.current_match_id = match_id
-    builtins.in_match = True
+    enter_match(match_id)
 
     content = { 'accept': '1',
                 'match_id': match_id,
@@ -201,8 +206,7 @@ def handle_match_message(message):
     # print a message and set globals
     for match_id in message['current_matches']:
         if 'start_time' in message['current_matches'][match_id]:
-            builtins.current_match_id = match_id
-            builtins.in_match = True
+            enter_match(match_id)
             return
 
     for match_id in message['current_matches']:
@@ -267,10 +271,10 @@ def matchmaking_loop(cookie_jar):
     while True:
         if builtins.in_match:
             smashladder_qt.qt_print('Already in match, not going to start matchmaking.')
-            time.sleep(5)
+            time.sleep(10)
         else:
             match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
-            time.sleep(305)
+            time.sleep(5)
 
 
 def challenge_loop(cookie_jar):

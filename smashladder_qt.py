@@ -20,6 +20,14 @@ def qt_print(text):
 # import here after initialization to receive it in smashladder_sockets
 import smashladder_sockets
 
+
+def qt_change_match_status(match_id, in_match):
+    if in_match:
+        main_window.in_match_value.setText('True: ' + match_id)
+    else:
+        match_id = False
+
+
 def move_widget(widget, x_center, y_center):
     qr = widget.frameGeometry()
     center = QPoint(x_center, y_center)

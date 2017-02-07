@@ -1,6 +1,6 @@
 import json
 import websocket
-from local import cookie_jar_to_string
+from local import cookie_jar_to_string, cookie_jar
 from smashladder import handle_private_chat_message, handle_match_message, handle_open_challenges
 
 

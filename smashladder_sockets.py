@@ -1,6 +1,7 @@
 import json
 import websocket
 from local import cookie_jar_to_string
+from smashladder import handle_private_chat_message, handle_match_message, handle_open_challenges
 
 
 def on_message(ws, message):

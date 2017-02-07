@@ -17,7 +17,7 @@
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>450</x>
       <y>20</y>
       <width>111</width>
       <height>41</height>
@@ -42,7 +42,7 @@
      <rect>
       <x>20</x>
       <y>20</y>
-      <width>131</width>
+      <width>111</width>
       <height>41</height>
      </rect>
     </property>
@@ -109,7 +109,7 @@
    <widget class="QLabel" name="in_match">
     <property name="geometry">
      <rect>
-      <x>170</x>
+      <x>270</x>
       <y>30</y>
       <width>51</width>
       <height>21</height>
@@ -122,7 +122,7 @@
    <widget class="QLabel" name="in_match_value">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>330</x>
       <y>30</y>
       <width>111</width>
       <height>20</height>
@@ -130,6 +130,19 @@
     </property>
     <property name="text">
      <string>False</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="quit_mm_button">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>20</y>
+      <width>111</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Quit matchmaking</string>
     </property>
    </widget>
   </widget>

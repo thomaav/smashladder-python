@@ -25,7 +25,7 @@ def qt_change_match_status(match_id, in_match):
     if in_match:
         main_window.in_match_value.setText('True: ' + match_id)
     else:
-        match_id = False
+        main_window.in_match_value.setText('False')
 
 
 def move_widget(widget, x_center, y_center):
@@ -100,6 +100,7 @@ class MainWindow(QWidget):
 
         # button to start all loops and matchmake
         self.mm_button.clicked.connect(self.start_matchmaking)
+        self.quit_mm_button.clicked.connect(smashladder.quit_all_matchmaking)
 
         # log in button and window
         self.login_window = LoginWindow()

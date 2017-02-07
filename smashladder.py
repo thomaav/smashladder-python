@@ -10,6 +10,7 @@ from smashladder_requests import *
 
 builtins.current_match_id = None
 builtins.in_match = False
+builtins.search_match_id = None
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -50,6 +51,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
 def enter_match(match_id):
     builtins.current_match_id = match_id
     builtins.in_match = True
+    builtins.search_match_id = None
     smashladder_qt.qt_change_match_status(builtins.current_match_id, builtins.in_match)
 
 
@@ -64,6 +66,15 @@ def quit_matchmaking(cookie_jar, match_id):
         smashladder_qt.qt_print('Success! Quit matchmaking with id: ' + match_id)
     else:
         smashladder_qt.qt_print('Failure! Could not quit match with id: ' + match_id)
+
+
+def quit_all_matchmaking():
+    if builtins.search_match_id:
+        quit_matchmaking(cookie_jar, builtins.search_match_id)
+    elif builtins.in_match:
+        report_friendly_done(cookie_jar, builtins.current_match_id)
+        finished_chatting_with_match(cookie_jar, builtins.current_match_id)
+        smashladder_qt.qt_change_match_status(None, False)
 
 
 def retrieve_active_searches(cookie_jar):
@@ -273,7 +284,7 @@ def matchmaking_loop(cookie_jar):
             smashladder_qt.qt_print('Already in match, not going to start matchmaking.')
             time.sleep(10)
         else:
-            match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
+            builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
             time.sleep(5)
 
 

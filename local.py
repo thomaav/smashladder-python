@@ -33,32 +33,13 @@ if os.path.isfile(WHITELISTED_COUNTRIES_FILE):
     with open(WHITELISTED_COUNTRIES_FILE, 'rb') as f:
         WHITELISTED_COUNTRIES = pickle.load(f)
 else:
-    WHITELISTED_COUNTRIES = [ 'Sweden',
-                              'Norway',
-                              'Denmark',
-                              'Netherlands',
-                              'Finland',
-                              'Sverige' ]
+    WHITELISTED_COUNTRIES = []
 
 if os.path.isfile(HIGH_PING_PLAYERS_FILE):
     with open(HIGH_PING_PLAYERS_FILE, 'rb') as f:
         HIGH_PING_PLAYERS = pickle.load(f)
 else:
-    HIGH_PING_PLAYERS = [ 'grandma',
-                          'jatuni',
-                          'Djentalist',
-                          'Nibl33t',
-                          'chaosmessenger',
-                          'Grodan',
-                          'cornflaco',
-                          'EarlyPeso',
-                          'lelkan',
-                          'Vesp',
-                          'vliegende1snor',
-                          'pwnagewolf',
-                          'Tipsi',
-                          'BK333',
-                          'w4zab1' ]
+    HIGH_PING_PLAYERS = []
 
 
 def whitelist_country(country):

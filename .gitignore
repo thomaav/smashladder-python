@@ -2,3 +2,5 @@
 *.ini
 *.pyc
 __pycache__
+conf/whitelisted_countries
+conf/high_ping_players

@@ -24,7 +24,10 @@ def cookie_jar_to_string(cookie_jar):
 
 
 COOKIE_FILE = 'conf/cookies.dat'
-cookie_jar = load_cookies_from_file(COOKIE_FILE)
+if os.path.isfile(COOKIE_FILE):
+    cookie_jar = load_cookies_from_file(COOKIE_FILE)
+else:
+    cookie_jar = None
 
 WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
 HIGH_PING_PLAYERS_FILE = 'conf/high_ping_players'

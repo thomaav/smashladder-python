@@ -3,6 +3,7 @@ import json
 import main
 import smashladder_qt
 import re
+import sys
 import time
 from local import *
 from smashladder_requests import *
@@ -291,7 +292,7 @@ def finished_chatting_with_match(cookie_jar, match_id):
 def matchmaking_loop(cookie_jar):
     while True:
         if builtins.in_match or builtins.idle:
-            time.sleep(10)
+            sys.exit()
         else:
             builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
             time.sleep(5)
@@ -300,7 +301,7 @@ def matchmaking_loop(cookie_jar):
 def challenge_loop(cookie_jar):
     while True:
         if builtins.in_match or builtins.idle:
-            time.sleep(5)
+            sys.exit()
         else:
             challenge_active_searches_friendlies(cookie_jar)
             time.sleep(5)

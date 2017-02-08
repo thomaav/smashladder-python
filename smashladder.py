@@ -10,6 +10,7 @@ from smashladder_requests import *
 
 builtins.current_match_id = None
 builtins.in_match = False
+builtins.in_queue = False
 builtins.search_match_id = None
 
 
@@ -31,9 +32,13 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                       'ranked': ranked,
                       'host_code': host_code, }
 
-    response = http_post_request('https://www.smashladder.com/matchmaking/begin_matchmaking',
-                                    match_content,
-                                    cookie_jar)
+    if not builtins.in_queue:
+        response = http_post_request('https://www.smashladder.com/matchmaking/begin_matchmaking',
+                                     match_content,
+                                     cookie_jar)
+    else:
+        smashladder_qt.qt_print('Already in queue, not starting matchmaking.')
+
     response_body = json.loads(response.text)
 
     # go through returned current searches, the first is your own
@@ -43,6 +48,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
 
     if (own_match_id):
         smashladder_qt.qt_print("Success! Matchmaking began in begin_matchmaking.")
+        builtins.in_queue = True
         return own_match_id
     else:
         return("Failure! Matchmaking aborted in begin_matchmaking.")
@@ -51,6 +57,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
 def enter_match(match_id):
     builtins.current_match_id = match_id
     builtins.in_match = True
+    builtins.in_queue = False
     builtins.search_match_id = None
     smashladder_qt.qt_change_match_status(builtins.current_match_id, builtins.in_match)
 
@@ -71,6 +78,7 @@ def quit_matchmaking(cookie_jar, match_id):
 def quit_all_matchmaking():
     if builtins.search_match_id:
         quit_matchmaking(cookie_jar, builtins.search_match_id)
+        builtins.in_queue = False
     elif builtins.in_match:
         report_friendly_done(cookie_jar, builtins.current_match_id)
         finished_chatting_with_match(cookie_jar, builtins.current_match_id)

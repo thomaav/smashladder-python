@@ -291,7 +291,6 @@ def finished_chatting_with_match(cookie_jar, match_id):
 def matchmaking_loop(cookie_jar):
     while True:
         if builtins.in_match or builtins.idle:
-            smashladder_qt.qt_print('Already in match, not going to start matchmaking.')
             time.sleep(10)
         else:
             builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
@@ -301,7 +300,6 @@ def matchmaking_loop(cookie_jar):
 def challenge_loop(cookie_jar):
     while True:
         if builtins.in_match or builtins.idle:
-            smashladder_qt.qt_print('Already in match, will not challenge people to matches.')
             time.sleep(5)
         else:
             challenge_active_searches_friendlies(cookie_jar)

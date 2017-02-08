@@ -1,3 +1,4 @@
+import builtins
 import local
 import sys
 import smashladder
@@ -116,6 +117,7 @@ class MainWindow(QWidget):
 
 
     def start_matchmaking(self):
+        builtins.idle = False
         matchmaking_thread = threading.Thread(target=smashladder.matchmaking_loop, args=(local.cookie_jar,))
         matchmaking_thread.daemon = True
         challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(local.cookie_jar,))

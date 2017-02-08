@@ -12,6 +12,7 @@ builtins.current_match_id = None
 builtins.in_match = False
 builtins.in_queue = False
 builtins.search_match_id = None
+builtins.idle = True
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -83,6 +84,7 @@ def quit_all_matchmaking():
         report_friendly_done(cookie_jar, builtins.current_match_id)
         finished_chatting_with_match(cookie_jar, builtins.current_match_id)
         smashladder_qt.qt_change_match_status(None, False)
+    builtins.idle = True
 
 
 def retrieve_active_searches(cookie_jar):
@@ -264,7 +266,7 @@ def handle_open_challenges(cookie_jar, message):
         smashladder_qt.qt_print(opponent_username[i] + ' from ' + opponent_country[i] + ' has challenged you to ' + ladder_name[i] + ' (ranked (' + str(is_ranked[i]) + '))')
 
     for i, country in enumerate(opponent_country):
-        if country in WHITELISTED_COUNTRIES:
+        if country in WHITELISTED_COUNTRIES and not builtins.idle:
             accept_match_challenge(cookie_jar, match_ids[i])
             smashladder_qt.qt_print('Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] + '.')
             break;
@@ -288,7 +290,7 @@ def finished_chatting_with_match(cookie_jar, match_id):
 
 def matchmaking_loop(cookie_jar):
     while True:
-        if builtins.in_match:
+        if builtins.in_match or builtins.idle:
             smashladder_qt.qt_print('Already in match, not going to start matchmaking.')
             time.sleep(10)
         else:
@@ -298,7 +300,7 @@ def matchmaking_loop(cookie_jar):
 
 def challenge_loop(cookie_jar):
     while True:
-        if builtins.in_match:
+        if builtins.in_match or builtins.idle:
             smashladder_qt.qt_print('Already in match, will not challenge people to matches.')
             time.sleep(5)
         else:

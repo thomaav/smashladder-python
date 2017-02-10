@@ -40,6 +40,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                                      cookie_jar)
     else:
         smashladder_qt.qt_print('Already in queue, not starting matchmaking.')
+        return
 
     response_body = json.loads(response.text)
 

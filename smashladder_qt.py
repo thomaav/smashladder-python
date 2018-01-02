@@ -52,7 +52,7 @@ class LoginWindow(QWidget):
         # center the widget on screen
         self.setMinimumSize(200, 100)
         self.setMaximumSize(350, 110)
-        self.resize(200, 100)
+        self.resize(300, 100)
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
@@ -62,9 +62,11 @@ class LoginWindow(QWidget):
         self.password_input = QLineEdit(self)
         self.password_input.setEchoMode(QLineEdit.Password)
 
+        self.username_input.returnPressed.connect(self.login)
+        self.password_input.returnPressed.connect(self.login)
+
         self.login_button = QPushButton('Log in')
         self.login_button.clicked.connect(self.login)
-        self.login_button.resize(BUTTON_SIZE_X, BUTTON_SIZE_Y)
 
         self.login_status = QLabel("Logging in...")
         self.login_status.setAlignment(Qt.AlignCenter)

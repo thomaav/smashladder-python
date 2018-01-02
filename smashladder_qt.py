@@ -50,7 +50,9 @@ class LoginWindow(QWidget):
         self.setLayout(form_layout)
 
         # center the widget on screen
-        self.setFixedSize(350, 110)
+        self.setMinimumSize(200, 100)
+        self.setMaximumSize(350, 110)
+        self.resize(200, 100)
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)

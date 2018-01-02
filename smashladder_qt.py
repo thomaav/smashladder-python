@@ -130,6 +130,23 @@ class MainWindow(QMainWindow):
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.high_ping_button.clicked.connect(self.add_high_ping_player_wrapper)
 
+        whitelist_country_tooltip = \
+        """
+  Used to whitelist specific countries that you want the script
+  to allow matches with. Especially useful in Europe where
+  distance is less important than the country your opponent is
+  residing in.
+        """
+        high_ping_tooltip = \
+        """
+  Used to blacklist players that you have a bad connection
+  to. Blacklisted players will not be challenged.
+        """
+        self.whitelist_country_tooltip.setAlignment(Qt.AlignCenter)
+        self.high_ping_tooltip.setAlignment(Qt.AlignCenter)
+        self.whitelist_country_tooltip.setToolTip(whitelist_country_tooltip)
+        self.high_ping_tooltip.setToolTip(high_ping_tooltip)
+
         self.show()
 
 

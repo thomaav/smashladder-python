@@ -5,10 +5,11 @@ import smashladder
 import smashladder_requests
 import threading
 import os.path
+import time
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import QCoreApplication, QPoint, Qt
+from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
 BUTTON_SIZE_X = 100
@@ -34,6 +35,26 @@ def move_widget(widget, x_center, y_center):
     center = QPoint(x_center, y_center)
     qr.moveCenter(center)
     widget.move(qr.topLeft())
+
+
+class MMThread(QThread):
+    qt_print = pyqtSignal(str)
+
+    def run(self):
+        while True:
+            if builtins.in_match or builtins.idle:
+                break
+            else:
+                if builtins.in_queue:
+                    time.sleep(5)
+                    continue
+                else:
+                    mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
+                    builtins.search_match_id = mm_status['match_id']
+                    self.qt_print.emit(mm_status['info'])
+                    time.sleep(5)
+
+        self.finished.emit()
 
 
 class LoginWindow(QWidget):
@@ -175,17 +196,25 @@ class MainWindow(QMainWindow):
 
 
     def start_matchmaking(self):
-        builtins.idle = False
-        matchmaking_thread = threading.Thread(target=smashladder.matchmaking_loop, args=(local.cookie_jar,))
-        matchmaking_thread.daemon = True
-        challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(local.cookie_jar,))
-        challenge_thread.daemon = True
-        main_socket_thread = threading.Thread(target=smashladder_sockets.connect_to_smashladder, args=(local.cookie_jar,))
-        main_socket_thread.daemon = True
+        if not hasattr(self, 'cookie_jar'):
+            qt_print('Log in to matchmake.')
+            return False
 
-        matchmaking_thread.start()
-        challenge_thread.start()
-        main_socket_thread.start()
+        builtins.idle = False
+
+        # matchmaking_thread = threading.Thread(target=smashladder.matchmaking_loop, args=(self.cookie_jar,))
+        self.matchmaking_thread = MMThread()
+        # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
+        # main_socket_thread = threading.Thread(target=smashladder_sockets.connect_to_smashladder, args=(self.cookie_jar,))
+        # self.matchmaking_thread.daemon = True
+        # challenge_thread.daemon = True
+        # main_socket_thread.daemon = True
+        self.matchmaking_thread.qt_print.connect(qt_print)
+        self.matchmaking_thread.start()
+        # challenge_thread.start()
+        # main_socket_thread.start()
+
+        return True
 
 
     def center(self):

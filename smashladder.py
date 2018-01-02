@@ -39,8 +39,7 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                                      match_content,
                                      cookie_jar)
     else:
-        smashladder_qt.qt_print('Already in queue, not starting matchmaking.')
-        return
+        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking.' }
 
     response_body = json.loads(response.text)
 
@@ -50,11 +49,10 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
             own_match_id = match_id
 
     if (own_match_id):
-        smashladder_qt.qt_print("Success! Matchmaking began in begin_matchmaking.")
         builtins.in_queue = True
-        return own_match_id
+        return { 'match_id': own_match_id, 'info': 'Success! Now matchmaking.' }
     else:
-        return("Failure! Matchmaking aborted in begin_matchmaking.")
+        return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted.' }
 
 
 def enter_match(match_id):
@@ -295,8 +293,12 @@ def matchmaking_loop(cookie_jar):
         if builtins.in_match or builtins.idle:
             sys.exit()
         else:
-            builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
-            time.sleep(5)
+            if builtins.in_queue:
+                time.sleep(5)
+                continue
+
+        builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
+        time.sleep(5)
 
 
 def challenge_loop(cookie_jar):

@@ -115,6 +115,7 @@ class MainWindow(QMainWindow):
         # self.setToolTip('This is a <b>QWidget</b> widget')
 
         self.center()
+        self.setFixedSize(self.width(), self.height())
         self.setWindowTitle('smashladder-python')
         self.setWindowIcon(QIcon('conf/smashladder.png'))
 

@@ -114,30 +114,17 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="in_match">
+   <widget class="QLabel" name="mm_status">
     <property name="geometry">
      <rect>
       <x>270</x>
       <y>30</y>
-      <width>71</width>
+      <width>151</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>In match:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="in_match_value">
-    <property name="geometry">
-     <rect>
-      <x>350</x>
-      <y>30</y>
-      <width>71</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>False</string>
+     <string>Idle</string>
     </property>
    </widget>
    <widget class="QPushButton" name="quit_mm_button">

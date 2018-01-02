@@ -6,11 +6,13 @@ import smashladder_requests
 import threading
 import os.path
 import time
+import enum
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
+
 
 BUTTON_SIZE_X = 100
 BUTTON_SIZE_Y = 26
@@ -23,11 +25,13 @@ def qt_print(text):
 import smashladder_sockets
 
 
-def qt_change_match_status(match_id, in_match):
-    if in_match:
-        main_window.in_match_value.setText('True: ' + match_id)
-    else:
-        main_window.in_match_value.setText('False')
+def qt_change_status(status):
+    if status == MMStatus.IDLE:
+        main_window.mm_status.setText('Idle')
+    elif status == MMStatus.IN_QUEUE:
+        main_window.mm_status.setText('In queue')
+    elif status == MMStatus.IN_MATCH:
+        main_window.mm_status.setText('In match')
 
 
 def move_widget(widget, x_center, y_center):
@@ -37,22 +41,33 @@ def move_widget(widget, x_center, y_center):
     widget.move(qr.topLeft())
 
 
+class MMStatus(enum.Enum):
+    IDLE = 1
+    IN_QUEUE = 2
+    IN_MATCH = 3
+
+
 class MMThread(QThread):
     qt_print = pyqtSignal(str)
+    secs_queued = 0
 
     def run(self):
         while True:
+            self.secs_queued += 5
+            if self.secs_queued > 305:
+                self.secs_queued = 0
+                builtins.in_queue = False
+
             if builtins.in_match or builtins.idle:
                 break
+            elif builtins.in_queue:
+                time.sleep(5)
+                continue
             else:
-                if builtins.in_queue:
-                    time.sleep(5)
-                    continue
-                else:
-                    mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
-                    builtins.search_match_id = mm_status['match_id']
-                    self.qt_print.emit(mm_status['info'])
-                    time.sleep(5)
+                mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
+                builtins.search_match_id = mm_status['match_id']
+                self.qt_print.emit(mm_status['info'])
+                time.sleep(5)
 
         self.finished.emit()
 
@@ -161,7 +176,9 @@ class MainWindow(QMainWindow):
         high_ping_tooltip = \
         """
   Used to blacklist players that you have a bad connection
-  to. Blacklisted players will not be challenged.
+  to. Blacklisted players will not be challenged. Can also be used
+  cleverly to avoid noobs, jerks and salts without ignoring them
+  forever.
         """
         self.whitelist_country_tooltip.setAlignment(Qt.AlignCenter)
         self.high_ping_tooltip.setAlignment(Qt.AlignCenter)

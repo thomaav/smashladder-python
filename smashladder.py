@@ -39,20 +39,24 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                                      match_content,
                                      cookie_jar)
     else:
-        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking.' }
+        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking' }
 
     response_body = json.loads(response.text)
 
     # go through returned current searches, the first is your own
-    for match_id in response_body['searches']:
-        if (re.match('[0-9]{7,9}', match_id)):
-            own_match_id = match_id
+    try:
+        for match_id in response_body['searches']:
+            if (re.match('[0-9]{7,9}', match_id)):
+                own_match_id = match_id
+    except KeyError:
+        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking' }
 
     if (own_match_id):
         builtins.in_queue = True
-        return { 'match_id': own_match_id, 'info': 'Success! Now matchmaking.' }
+        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IN_QUEUE)
+        return { 'match_id': own_match_id, 'info': 'Success! Now matchmaking' }
     else:
-        return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted.' }
+        return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted' }
 
 
 def enter_match(match_id):
@@ -60,7 +64,7 @@ def enter_match(match_id):
     builtins.in_match = True
     builtins.in_queue = False
     builtins.search_match_id = None
-    smashladder_qt.qt_change_match_status(builtins.current_match_id, builtins.in_match)
+    smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IN_MATCH)
 
 
 def quit_matchmaking(cookie_jar, match_id):
@@ -71,6 +75,7 @@ def quit_matchmaking(cookie_jar, match_id):
     response_body = json.loads(response.text)
 
     if 'success' in response_body:
+        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
         smashladder_qt.qt_print('Success! Quit matchmaking with id: ' + match_id)
     else:
         smashladder_qt.qt_print('Failure! Could not quit match with id: ' + match_id)
@@ -84,7 +89,10 @@ def quit_all_matchmaking(cookie_jar):
         report_friendly_done(cookie_jar, builtins.current_match_id)
         finished_chatting_with_match(cookie_jar, builtins.current_match_id)
         smashladder_qt.qt_change_match_status(None, False)
+
     builtins.idle = True
+    builtins.current_match_id = None
+    smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
 
 
 def retrieve_active_searches(cookie_jar):

@@ -17,6 +17,10 @@ DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q
 };
 
 
+class FailingRequestException(Exception):
+    pass
+
+
 def http_get_request(url, cookie_jar={}, headers=DEFAULT_HEADERS):
     return requests.get(url, cookies=cookie_jar, data=headers)
 
@@ -40,7 +44,10 @@ def login_to_smashladder(username='', password=''):
                        'remember': '1',
                        'json': '1' }
 
-    response = http_post_request('https://www.smashladder.com/log-in', login_content)
+    try:
+        response = http_post_request('https://www.smashladder.com/log-in', login_content)
+    except Exception:
+        raise FailingRequestException('Could not send login request.')
 
     if (response.json()['success']):
         local.save_cookies_to_file(response.cookies, local.COOKIE_FILE)

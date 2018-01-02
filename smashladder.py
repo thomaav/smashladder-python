@@ -78,7 +78,7 @@ def quit_matchmaking(cookie_jar, match_id):
         smashladder_qt.qt_print('Failure! Could not quit match with id: ' + match_id)
 
 
-def quit_all_matchmaking():
+def quit_all_matchmaking(cookie_jar):
     if builtins.search_match_id:
         quit_matchmaking(cookie_jar, builtins.search_match_id)
         builtins.in_queue = False

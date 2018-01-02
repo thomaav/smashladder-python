@@ -26,7 +26,7 @@ def on_close(ws):
 
 
 def connect_to_smashladder(cookie_jar):
-    websocket.enableTrace(True)
+    # websocket.enableTrace(True)
     ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
                                 on_message = on_message,
                                 on_error = on_error,

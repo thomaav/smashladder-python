@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon('conf/smashladder.png'))
 
         self.mm_button.clicked.connect(self.start_matchmaking)
-        self.quit_mm_button.clicked.connect(smashladder.quit_all_matchmaking)
+        self.quit_mm_button.clicked.connect(lambda: smashladder.quit_all_matchmaking(self.cookie_jar))
 
         self.login_window = LoginWindow()
         self.relog_button.clicked.connect(lambda: self.login_window.show())
@@ -152,7 +152,9 @@ class MainWindow(QMainWindow):
 
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
-            cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
+            local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
+            self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
+
             self.relog_button.hide()
             self.logged_in_label.show()
             self.logout_button.show()

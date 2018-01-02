@@ -94,6 +94,8 @@ class LoginWindow(QWidget):
 
         try:
             if smashladder_requests.login_to_smashladder(username, password):
+                main_window.login()
+                self.login_status.hide()
                 self.close()
             else:
                 self.login_status.setText('Wrong username and/or password')
@@ -121,6 +123,7 @@ class MainWindow(QMainWindow):
 
         self.login_window = LoginWindow()
         self.relog_button.clicked.connect(lambda: self.login_window.show())
+        self.logout_button.clicked.connect(self.logout)
         self.login()
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
@@ -133,8 +136,22 @@ class MainWindow(QMainWindow):
         if os.path.isfile(local.COOKIE_FILE):
             cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.relog_button.hide()
+            self.logged_in_label.show()
+            self.logout_button.show()
         else:
+            self.logged_in_label.hide()
+            self.logout_button.hide()
             self.relog_button.click()
+
+
+    def logout(self):
+        try:
+            os.remove(local.COOKIE_FILE)
+            self.relog_button.show()
+            self.logged_in_label.hide()
+            self.logout_button.hide()
+        except Exception as e:
+            qt_print('Could not delete cookie file: {}'.format(e))
 
 
     def start_matchmaking(self):

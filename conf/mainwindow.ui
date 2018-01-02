@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QWidget</class>
+ <class>MainWidget</class>
  <widget class="QWidget" name="MainWidget">
   <property name="geometry">
    <rect>
@@ -13,7 +13,15 @@
   <property name="windowTitle">
    <string>MainWidget</string>
   </property>
-  <widget class="QWidget" name="centralWidget">
+  <widget class="QWidget" name="centralWidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>581</width>
+     <height>321</height>
+    </rect>
+   </property>
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
      <rect>
@@ -145,8 +153,46 @@
      <string>Quit matchmaking</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="logout_button">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>30</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="logged_in_label">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>30</y>
+      <width>71</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Logged in</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>3</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

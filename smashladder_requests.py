@@ -32,14 +32,18 @@ def get_login_credentials():
 
 
 def login_to_smashladder(username='', password=''):
-    # get credentials
     if not (username and password):
         username, password = get_login_credentials()
+
     login_content =  { 'username': username,
                        'password': password,
-                       'remember': '1' }
+                       'remember': '1',
+                       'json': '1' }
 
-    response = http_post_request('https://smashladder.com/log-in', login_content)
-    local.save_cookies_to_file(response.cookies, local.COOKIE_FILE)
+    response = http_post_request('https://www.smashladder.com/log-in', login_content)
 
-    return response.cookies
+    if (response.json()['success']):
+        local.save_cookies_to_file(response.cookies, local.COOKIE_FILE)
+        return True
+
+    return False

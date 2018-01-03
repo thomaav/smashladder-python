@@ -165,7 +165,9 @@ class MainWindow(QMainWindow):
         self.login()
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
+        self.whitelist_country.returnPressed.connect(self.whitelist_country_wrapper)
         self.high_ping_button.clicked.connect(self.add_high_ping_player_wrapper)
+        self.high_ping_username.returnPressed.connect(self.add_high_ping_player_wrapper)
 
         self.list_high_ping_button.setIcon(QIcon('conf/list.ico'))
         self.list_whitelisted_countries_button.setIcon(QIcon('conf/list.ico'))

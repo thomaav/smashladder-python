@@ -260,9 +260,9 @@ class MainWindow(QMainWindow):
             self.config_info.clear()
             if country not in local.WHITELISTED_COUNTRIES:
                 local.whitelist_country(country)
-                self.config_info.d(country + ' added to whitelist')
+                self.config_info.append(country + ' added to whitelist')
             else:
-                self.config_info.d(country + ' already whitelisted')
+                self.config_info.append(country + ' already whitelisted')
             self.whitelist_country.setText('')
 
 

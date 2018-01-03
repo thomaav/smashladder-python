@@ -192,7 +192,7 @@ class MainWindow(QMainWindow):
         self.high_ping_tooltip.setToolTip(high_ping_tooltip)
 
         self.config_info.mouseMoveEvent = (self.highlight_config_line)
-        # self.config_info.mousePressEvent = (self.highlight_config_line)
+        self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
 
         self.show()
@@ -290,10 +290,25 @@ class MainWindow(QMainWindow):
         cur.mergeCharFormat(format)
 
 
+    def delete_config(self, evt):
+        self.reset_config_info_highlighting()
+        cur = self.config_info.cursorForPosition(evt.pos())
+        cur.select(QTextCursor.LineUnderCursor)
+        selected_text = cur.selectedText()
+
+        config_info_title = self.config_info.toPlainText()[:9]
+        if config_info_title == 'High ping':
+            local.remove_high_ping_player(selected_text)
+            self.list_high_ping_button.click()
+        elif config_info_title == 'Whitelist':
+            local.remove_whitelisted_country(selected_text)
+            self.list_whitelisted_countries_button.click()
+
+
     def list_high_ping(self):
         self.config_info.clear()
-        self.config_info.append("High ping players")
-        self.config_info.append("----------------------")
+        self.config_info.append('High ping players')
+        self.config_info.append('----------------------')
 
         for player in sorted(local.HIGH_PING_PLAYERS):
             self.config_info.append(player)
@@ -303,8 +318,8 @@ class MainWindow(QMainWindow):
 
     def list_whitelisted_countries(self):
         self.config_info.clear()
-        self.config_info.append("Whitelisted countries")
-        self.config_info.append("---------------------------")
+        self.config_info.append('Whitelisted countries')
+        self.config_info.append('---------------------------')
 
         for country in sorted(local.WHITELISTED_COUNTRIES):
             self.config_info.append(country)

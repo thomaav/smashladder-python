@@ -40,16 +40,40 @@ else:
     HIGH_PING_PLAYERS = []
 
 
-def whitelist_country(country):
-    WHITELISTED_COUNTRIES.append(country)
+def dump_whitelisted_countries():
     with open(WHITELISTED_COUNTRIES_FILE, 'wb') as f:
         pickle.dump(WHITELISTED_COUNTRIES, f)
 
 
-def add_high_ping_player(player):
-    HIGH_PING_PLAYERS.append(player)
+def dump_high_ping_players():
     with open(HIGH_PING_PLAYERS_FILE, 'wb') as f:
         pickle.dump(HIGH_PING_PLAYERS, f)
+
+
+def whitelist_country(country):
+    WHITELISTED_COUNTRIES.append(country)
+    dump_whitelisted_countries()
+
+
+def add_high_ping_player(player):
+    HIGH_PING_PLAYERS.append(player)
+    dump_high_ping_players()
+
+
+def remove_whitelisted_country(country):
+    if country not in WHITELISTED_COUNTRIES:
+        return
+
+    WHITELISTED_COUNTRIES.remove(country)
+    dump_whitelisted_countries()
+
+
+def remove_high_ping_player(player):
+    if player not in HIGH_PING_PLAYERS:
+        return
+
+    HIGH_PING_PLAYERS.remove(player)
+    dump_high_ping_players()
 
 
 WHITELISTED_GAMES = { 'Melee': '2', }

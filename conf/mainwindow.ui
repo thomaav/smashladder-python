@@ -281,9 +281,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>570</x>
+      <x>569</x>
       <y>0</y>
-      <width>21</width>
+      <width>20</width>
       <height>21</height>
      </rect>
     </property>

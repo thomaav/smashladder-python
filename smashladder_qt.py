@@ -176,6 +176,9 @@ class MainWindow(QMainWindow):
         with open('conf/mainwindow.css') as f:
             self.setStyleSheet(f.read())
 
+        self.minimize_button.clicked.connect(lambda: self.showMinimized())
+        self.exit_button.clicked.connect(lambda: self.close())
+
         self.mm_button.clicked.connect(self.start_matchmaking)
         self.quit_mm_button.clicked.connect(lambda: smashladder.quit_all_matchmaking(self.cookie_jar))
 

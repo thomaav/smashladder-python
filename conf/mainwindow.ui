@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
-    <height>326</height>
+    <width>611</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="mouseTracking">
@@ -34,7 +34,7 @@
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>370</x>
       <y>20</y>
       <width>111</width>
       <height>41</height>
@@ -158,7 +158,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>450</x>
       <y>30</y>
       <width>21</width>
       <height>21</height>
@@ -171,7 +171,7 @@
    <widget class="QLabel" name="logged_in_label">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>370</x>
       <y>30</y>
       <width>71</width>
       <height>20</height>
@@ -257,6 +257,38 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="exit_button">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>0</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="minimize_button">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>0</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>-</string>
     </property>
    </widget>
   </widget>

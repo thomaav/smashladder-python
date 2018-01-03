@@ -77,7 +77,6 @@ class LoginWindow(QWidget):
     def __init__(self, main_window, parent=None):
         super(LoginWindow, self).__init__(parent)
         self.main_window = main_window
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.initUI()
 
 
@@ -86,6 +85,11 @@ class LoginWindow(QWidget):
         form_layout = QFormLayout()
         self.form_layout = form_layout
         self.setLayout(form_layout)
+        self.setObjectName('LoginWidget')
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+
+        with open('conf/mainwindow.css') as f:
+            self.setStyleSheet(f.read())
 
         # center the widget on screen
         self.setMinimumSize(200, 100)
@@ -165,8 +169,12 @@ class MainWindow(QMainWindow):
 
         self.center()
         self.setFixedSize(self.width(), self.height())
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('smashladder-python')
         self.setWindowIcon(QIcon('conf/smashladder.png'))
+
+        with open('conf/mainwindow.css') as f:
+            self.setStyleSheet(f.read())
 
         self.mm_button.clicked.connect(self.start_matchmaking)
         self.quit_mm_button.clicked.connect(lambda: smashladder.quit_all_matchmaking(self.cookie_jar))
@@ -298,7 +306,7 @@ class MainWindow(QMainWindow):
     def reset_config_info_highlighting(self):
         reset_cursor = self.config_info.textCursor()
         format = QTextCharFormat()
-        format.setBackground(QBrush(QColor('white')))
+        format.setBackground(QBrush(QColor(18, 20, 28)))
         reset_cursor.setPosition(0)
         reset_cursor.movePosition(QTextCursor.End, 1)
         reset_cursor.mergeCharFormat(format)

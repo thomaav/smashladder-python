@@ -1,0 +1,22 @@
+#MainWidget, #LoginWidget {
+    background-color: rgb(28, 31, 43);
+}
+
+QLineEdit {
+    background-color: rgb(18, 20, 28);
+    color: white;
+}
+
+QPushButton {
+    background-color: rgb(58, 64, 89);
+    color: white;
+}
+
+QLabel {
+    color: white;
+}
+
+QTextBrowser {
+    background-color: rgb(18, 20, 28);
+    color: white;
+}

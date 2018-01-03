@@ -255,18 +255,28 @@ class MainWindow(QMainWindow):
 
     def whitelist_country_wrapper(self):
         country = self.whitelist_country.text()
-        if country and country not in local.WHITELISTED_COUNTRIES:
-            local.whitelist_country(country)
-            self.config_info.append(country + ' added to whitelist.')
-        self.whitelist_country.setText('')
+
+        if country:
+            self.config_info.clear()
+            if country not in local.WHITELISTED_COUNTRIES:
+                local.whitelist_country(country)
+                self.config_info.d(country + ' added to whitelist')
+            else:
+                self.config_info.d(country + ' already whitelisted')
+            self.whitelist_country.setText('')
 
 
     def add_high_ping_player_wrapper(self):
         username = self.high_ping_username.text()
-        if username and username not in local.HIGH_PING_PLAYERS:
-            local.add_high_ping_player(username)
-            self.config_info.append(username + ' added to high_ping.')
-        self.high_ping_username.setText('')
+
+        if username:
+            self.config_info.clear()
+            if username not in local.HIGH_PING_PLAYERS:
+                local.add_high_ping_player(username)
+                self.config_info.append(username + ' added to high ping')
+            else:
+                self.config_info.append(username + ' already in high ping list')
+            self.high_ping_username.setText('')
 
 
     def reset_config_info_highlighting(self):

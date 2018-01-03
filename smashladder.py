@@ -49,7 +49,14 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
             if (re.match('[0-9]{7,9}', match_id)):
                 own_match_id = match_id
     except KeyError:
-        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking' }
+        error_msg = response_body['error']
+
+        if error_msg == 'You do not have access to this page':
+            return { 'match_id': None, 'info': 'Log in to matchmake' }
+        elif error_msg == 'A search like this is already active!':
+            return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking' }
+        else:
+            return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted' }
 
     if (own_match_id):
         builtins.in_queue = True

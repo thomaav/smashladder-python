@@ -216,7 +216,10 @@ class MainWindow(QMainWindow):
 
     def logout(self):
         try:
+            local.cookie_jar = None
+            self.cookie_jar = None
             os.remove(local.COOKIE_FILE)
+
             self.relog_button.show()
             self.logged_in_label.hide()
             self.logout_button.hide()
@@ -225,8 +228,8 @@ class MainWindow(QMainWindow):
 
 
     def start_matchmaking(self):
-        if not hasattr(self, 'cookie_jar'):
-            qt_print('Log in to matchmake.')
+        if not hasattr(self, 'cookie_jar') or not self.cookie_jar:
+            qt_print('Log in to matchmake')
             return False
 
         builtins.idle = False

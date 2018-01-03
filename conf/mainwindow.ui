@@ -10,6 +10,9 @@
     <height>326</height>
    </rect>
   </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>MainWidget</string>
   </property>
@@ -21,6 +24,9 @@
      <width>611</width>
      <height>321</height>
     </rect>
+   </property>
+   <property name="mouseTracking">
+    <bool>true</bool>
    </property>
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
@@ -102,6 +108,9 @@
       <width>231</width>
       <height>101</height>
      </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QTextBrowser" name="matchmaking_info">

@@ -8,8 +8,9 @@ import os.path
 import time
 import enum
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
-    QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel
-from PyQt5.QtGui import QIcon, QFont
+    QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
+from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
+    QTextFormat
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
@@ -190,6 +191,10 @@ class MainWindow(QMainWindow):
         self.whitelist_country_tooltip.setToolTip(whitelist_country_tooltip)
         self.high_ping_tooltip.setToolTip(high_ping_tooltip)
 
+        self.config_info.mouseMoveEvent = (self.highlight_config_line)
+        # self.config_info.mousePressEvent = (self.highlight_config_line)
+        self.config_info.setLineWrapMode(QTextEdit.NoWrap)
+
         self.show()
 
 
@@ -260,6 +265,29 @@ class MainWindow(QMainWindow):
             local.add_high_ping_player(username)
             self.config_info.append(username + ' added to high_ping.')
         self.high_ping_username.setText('')
+
+
+    def reset_config_info_highlighting(self):
+        reset_cursor = self.config_info.textCursor()
+        format = QTextCharFormat()
+        format.setBackground(QBrush(QColor('white')))
+        reset_cursor.setPosition(0)
+        reset_cursor.movePosition(QTextCursor.End, 1)
+        reset_cursor.mergeCharFormat(format)
+
+
+    def highlight_config_line(self, evt):
+        self.reset_config_info_highlighting()
+        cur = self.config_info.cursorForPosition(evt.pos())
+        cur_line_no = cur.blockNumber()
+
+        if cur_line_no <= 1:
+            return
+
+        cur.select(QTextCursor.LineUnderCursor)
+        format = QTextCharFormat()
+        format.setBackground(QBrush(QColor('red')))
+        cur.mergeCharFormat(format)
 
 
     def list_high_ping(self):

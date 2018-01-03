@@ -25,7 +25,7 @@ def cookie_jar_to_string(cookie_jar):
 
 COOKIE_FILE = 'conf/cookies.dat'
 WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
-HIGH_PING_PLAYERS_FILE = 'conf/high_ping_players'
+BLACKLISTED_PLAYERS_FILE = 'conf/blacklisted_players'
 
 if os.path.isfile(WHITELISTED_COUNTRIES_FILE):
     with open(WHITELISTED_COUNTRIES_FILE, 'rb') as f:
@@ -33,11 +33,11 @@ if os.path.isfile(WHITELISTED_COUNTRIES_FILE):
 else:
     WHITELISTED_COUNTRIES = []
 
-if os.path.isfile(HIGH_PING_PLAYERS_FILE):
-    with open(HIGH_PING_PLAYERS_FILE, 'rb') as f:
-        HIGH_PING_PLAYERS = pickle.load(f)
+if os.path.isfile(BLACKLISTED_PLAYERS_FILE):
+    with open(BLACKLISTED_PLAYERS_FILE, 'rb') as f:
+        BLACKLISTED_PLAYERS = pickle.load(f)
 else:
-    HIGH_PING_PLAYERS = []
+    BLACKLISTED_PLAYERS = []
 
 
 def dump_whitelisted_countries():
@@ -45,9 +45,9 @@ def dump_whitelisted_countries():
         pickle.dump(WHITELISTED_COUNTRIES, f)
 
 
-def dump_high_ping_players():
-    with open(HIGH_PING_PLAYERS_FILE, 'wb') as f:
-        pickle.dump(HIGH_PING_PLAYERS, f)
+def dump_blacklisted_players():
+    with open(BLACKLISTED_PLAYERS_FILE, 'wb') as f:
+        pickle.dump(BLACKLISTED_PLAYERS, f)
 
 
 def whitelist_country(country):
@@ -55,9 +55,9 @@ def whitelist_country(country):
     dump_whitelisted_countries()
 
 
-def add_high_ping_player(player):
-    HIGH_PING_PLAYERS.append(player)
-    dump_high_ping_players()
+def blacklist_player(player):
+    BLACKLISTED_PLAYERS.append(player)
+    dump_blacklisted_players()
 
 
 def remove_whitelisted_country(country):
@@ -68,12 +68,12 @@ def remove_whitelisted_country(country):
     dump_whitelisted_countries()
 
 
-def remove_high_ping_player(player):
-    if player not in HIGH_PING_PLAYERS:
+def remove_blacklisted_player(player):
+    if player not in BLACKLISTED_PLAYERS:
         return
 
-    HIGH_PING_PLAYERS.remove(player)
-    dump_high_ping_players()
+    BLACKLISTED_PLAYERS.remove(player)
+    dump_blacklisted_players()
 
 
 WHITELISTED_GAMES = { 'Melee': '2', }

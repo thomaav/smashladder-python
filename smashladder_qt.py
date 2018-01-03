@@ -173,12 +173,12 @@ class MainWindow(QMainWindow):
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.whitelist_country.returnPressed.connect(self.whitelist_country_wrapper)
-        self.high_ping_button.clicked.connect(self.add_high_ping_player_wrapper)
-        self.high_ping_username.returnPressed.connect(self.add_high_ping_player_wrapper)
+        self.blacklist_player_button.clicked.connect(self.blacklist_player_wrapper)
+        self.blacklist_player_username.returnPressed.connect(self.blacklist_player_wrapper)
 
-        self.list_high_ping_button.setIcon(QIcon('conf/list.ico'))
+        self.list_blacklisted_players_button.setIcon(QIcon('conf/list.ico'))
         self.list_whitelisted_countries_button.setIcon(QIcon('conf/list.ico'))
-        self.list_high_ping_button.clicked.connect(self.list_high_ping)
+        self.list_blacklisted_players_button.clicked.connect(self.list_blacklisted_players)
         self.list_whitelisted_countries_button.clicked.connect(self.list_whitelisted_countries)
 
         whitelist_country_tooltip = \
@@ -188,17 +188,16 @@ class MainWindow(QMainWindow):
   distance is less important than the country your opponent is
   residing in.
         """
-        high_ping_tooltip = \
+        blacklist_player_tooltip = \
         """
   Used to blacklist players that you have a bad connection
-  to. Blacklisted players will not be challenged. Can also be used
-  cleverly to avoid noobs, jerks and salts without ignoring them
-  forever.
+  to. Blacklisted players will not be challenged. Can be used cleverly
+  to avoid noobs, jerks and salts without ignoring them forever.
         """
         self.whitelist_country_tooltip.setAlignment(Qt.AlignCenter)
-        self.high_ping_tooltip.setAlignment(Qt.AlignCenter)
+        self.blacklist_player_tooltip.setAlignment(Qt.AlignCenter)
         self.whitelist_country_tooltip.setToolTip(whitelist_country_tooltip)
-        self.high_ping_tooltip.setToolTip(high_ping_tooltip)
+        self.blacklist_player_tooltip.setToolTip(blacklist_player_tooltip)
 
         self.config_info.mouseMoveEvent = (self.highlight_config_line)
         self.config_info.mousePressEvent = (self.delete_config)
@@ -283,17 +282,17 @@ class MainWindow(QMainWindow):
             self.whitelist_country.setText('')
 
 
-    def add_high_ping_player_wrapper(self):
-        username = self.high_ping_username.text()
+    def blacklist_player_wrapper(self):
+        username = self.blacklist_player_username.text()
 
         if username:
             self.config_info.clear()
-            if username not in local.HIGH_PING_PLAYERS:
-                local.add_high_ping_player(username)
-                self.config_info.append(username + ' added to high ping')
+            if username not in local.BLACKLISTED_PLAYERS:
+                local.blacklist_player(username)
+                self.config_info.append(username + ' added to blacklisted players')
             else:
-                self.config_info.append(username + ' already in high ping list')
-            self.high_ping_username.setText('')
+                self.config_info.append(username + ' already blacklisted')
+            self.blacklist_player_username.setText('')
 
 
     def reset_config_info_highlighting(self):
@@ -326,20 +325,20 @@ class MainWindow(QMainWindow):
         selected_text = cur.selectedText()
 
         config_info_title = self.config_info.toPlainText()[:9]
-        if config_info_title == 'High ping':
-            local.remove_high_ping_player(selected_text)
-            self.list_high_ping_button.click()
+        if config_info_title == 'Blacklist':
+            local.remove_blacklisted_player(selected_text)
+            self.list_blacklisted_players_button.click()
         elif config_info_title == 'Whitelist':
             local.remove_whitelisted_country(selected_text)
             self.list_whitelisted_countries_button.click()
 
 
-    def list_high_ping(self):
+    def list_blacklisted_players(self):
         self.config_info.clear()
-        self.config_info.append('High ping players')
-        self.config_info.append('----------------------')
+        self.config_info.append('Blacklisted players')
+        self.config_info.append('------------------------')
 
-        for player in sorted(local.HIGH_PING_PLAYERS):
+        for player in sorted(local.BLACKLISTED_PLAYERS):
             self.config_info.append(player)
 
         self.config_info.verticalScrollBar().setValue(0)

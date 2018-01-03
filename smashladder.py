@@ -175,7 +175,7 @@ def challenge_active_searches_friendlies(cookie_jar):
     # players that you have blacklisted for e.g. high ping
     challenges_awaiting_reply = retrieve_challenges_awaiting_reply(cookie_jar)
     ignored_users = retrieve_ignored_users(cookie_jar)
-    high_ping_players = HIGH_PING_PLAYERS
+    blacklisted_players = BLACKLISTED_PLAYERS
 
     for match_id in active_whitelisted_searches:
         match = active_whitelisted_searches[match_id]
@@ -195,7 +195,7 @@ def challenge_active_searches_friendlies(cookie_jar):
             if opponent_username == OWN_USERNAME or \
                opponent_username in challenges_awaiting_reply or \
                opponent_username in ignored_users or \
-               opponent_username in high_ping_players:
+               opponent_username in blacklisted_players:
                 continue
 
             http_post_request('https://www.smashladder.com/matchmaking/challenge_search',

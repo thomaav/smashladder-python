@@ -41,7 +41,7 @@
      <string>Log in</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="high_ping_username">
+   <widget class="QLineEdit" name="blacklist_player_username">
     <property name="geometry">
      <rect>
       <x>370</x>
@@ -64,7 +64,7 @@
      <string>Start</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="high_ping_button">
+   <widget class="QPushButton" name="blacklist_player_button">
     <property name="geometry">
      <rect>
       <x>530</x>
@@ -178,17 +178,17 @@
      <string>Logged in</string>
     </property>
    </widget>
-   <widget class="QLabel" name="high_ping_label">
+   <widget class="QLabel" name="blacklist_player_label">
     <property name="geometry">
      <rect>
       <x>370</x>
       <y>80</y>
-      <width>71</width>
+      <width>111</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>High ping:</string>
+     <string>Blacklist player:</string>
     </property>
    </widget>
    <widget class="QLabel" name="whitelist_country_label">
@@ -204,7 +204,7 @@
      <string>Whitelist country:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="high_ping_tooltip">
+   <widget class="QLabel" name="blacklist_player_tooltip">
     <property name="geometry">
      <rect>
       <x>495</x>
@@ -230,7 +230,7 @@
      <string>?</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="list_high_ping_button">
+   <widget class="QPushButton" name="list_blacklisted_players_button">
     <property name="geometry">
      <rect>
       <x>570</x>

@@ -166,6 +166,11 @@ class MainWindow(QMainWindow):
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.high_ping_button.clicked.connect(self.add_high_ping_player_wrapper)
 
+        self.list_high_ping_button.setIcon(QIcon('conf/list.ico'))
+        self.list_whitelisted_countries_button.setIcon(QIcon('conf/list.ico'))
+        self.list_high_ping_button.clicked.connect(self.list_high_ping)
+        self.list_whitelisted_countries_button.clicked.connect(self.list_whitelisted_countries)
+
         whitelist_country_tooltip = \
         """
   Used to whitelist specific countries that you want the script
@@ -255,6 +260,28 @@ class MainWindow(QMainWindow):
             local.add_high_ping_player(username)
             self.config_info.append(username + ' added to high_ping.')
         self.high_ping_username.setText('')
+
+
+    def list_high_ping(self):
+        self.config_info.clear()
+        self.config_info.append("High ping players")
+        self.config_info.append("----------------------")
+
+        for player in sorted(local.HIGH_PING_PLAYERS):
+            self.config_info.append(player)
+
+        self.config_info.verticalScrollBar().setValue(0)
+
+
+    def list_whitelisted_countries(self):
+        self.config_info.clear()
+        self.config_info.append("Whitelisted countries")
+        self.config_info.append("---------------------------")
+
+        for country in sorted(local.WHITELISTED_COUNTRIES):
+            self.config_info.append(country)
+
+        self.config_info.verticalScrollBar().setValue(0)
 
 
 app = QApplication(sys.argv)

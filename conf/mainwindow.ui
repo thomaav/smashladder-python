@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
+    <width>614</width>
     <height>326</height>
    </rect>
   </property>
@@ -18,14 +18,14 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>581</width>
+     <width>611</width>
      <height>321</height>
     </rect>
    </property>
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
      <rect>
-      <x>450</x>
+      <x>490</x>
       <y>20</y>
       <width>111</width>
       <height>41</height>
@@ -98,9 +98,9 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>210</y>
-      <width>191</width>
-      <height>91</height>
+      <y>200</y>
+      <width>231</width>
+      <height>101</height>
      </rect>
     </property>
    </widget>
@@ -146,7 +146,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>580</x>
       <y>30</y>
       <width>21</width>
       <height>21</height>
@@ -159,7 +159,7 @@
    <widget class="QLabel" name="logged_in_label">
     <property name="geometry">
      <rect>
-      <x>460</x>
+      <x>510</x>
       <y>30</y>
       <width>71</width>
       <height>20</height>
@@ -219,6 +219,32 @@
     </property>
     <property name="text">
      <string>?</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="list_high_ping_button">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>100</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="list_whitelisted_countries_button">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>160</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

@@ -74,8 +74,9 @@ class MMThread(QThread):
 
 
 class LoginWindow(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, main_window, parent=None):
         super(LoginWindow, self).__init__(parent)
+        self.main_window = main_window
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.initUI()
 
@@ -114,6 +115,17 @@ class LoginWindow(QWidget):
         form_layout.addRow(self.login_button)
         form_layout.addRow(self.login_status)
 
+        self.showEvent = self.show_event
+        self.closeEvent = self.close_event
+
+
+    def show_event(self, evt):
+        self.main_window.setEnabled(False)
+
+
+    def close_event(self, evt):
+        self.main_window.setEnabled(True)
+
 
     def login(self):
         self.login_status.show()
@@ -131,7 +143,7 @@ class LoginWindow(QWidget):
 
         try:
             if smashladder_requests.login_to_smashladder(username, password):
-                main_window.login()
+                self.main_window.login()
                 self.login_status.hide()
                 self.close()
             else:
@@ -158,11 +170,6 @@ class MainWindow(QMainWindow):
 
         self.mm_button.clicked.connect(self.start_matchmaking)
         self.quit_mm_button.clicked.connect(lambda: smashladder.quit_all_matchmaking(self.cookie_jar))
-
-        self.login_window = LoginWindow()
-        self.relog_button.clicked.connect(lambda: self.login_window.show())
-        self.logout_button.clicked.connect(self.logout)
-        self.login()
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.whitelist_country.returnPressed.connect(self.whitelist_country_wrapper)
@@ -198,6 +205,13 @@ class MainWindow(QMainWindow):
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
 
         self.show()
+
+        # we want the creation of the main window to be _done_ before
+        # we create the login window
+        self.login_window = LoginWindow(self)
+        self.relog_button.clicked.connect(lambda: self.login_window.show())
+        self.logout_button.clicked.connect(self.logout)
+        self.login()
 
 
     def login(self):

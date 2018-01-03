@@ -16,6 +16,9 @@
   <property name="windowTitle">
    <string>MainWidget</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">mainwindow.css</string>
+  </property>
   <widget class="QWidget" name="centralWidget" native="true">
    <property name="geometry">
     <rect>

@@ -52,26 +52,26 @@ class MMThread(QThread):
 
     def run(self):
         while True:
-            self.secs_queued += 5
-            if self.secs_queued > 305:
-                self.secs_queued = 0
-                builtins.in_queue = False
-
             if builtins.in_match or builtins.idle:
                 break
-            elif builtins.in_queue:
-                time.sleep(5)
+
+            if builtins.in_queue:
+                self.secs_queued += 1
+                if self.secs_queued > 305:
+                    self.secs_queued = 0
+                    builtins.in_queue = False
+                    builtins.search_match_id = None
+                time.sleep(1)
                 continue
             else:
                 mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
-                builtins.search_match_id = mm_status['match_id']
                 self.qt_print.emit(mm_status['info'])
 
                 if mm_status['match_id']:
-                    qt_change_status(MMStatus.IN_QUEUE)
                     builtins.in_queue = True
+                    builtins.search_match_id = mm_status['match_id']
 
-                time.sleep(5)
+                time.sleep(1)
 
 
 class SocketThread(QThread):
@@ -199,6 +199,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.initUI()
+        self.init_threads()
 
 
     def initUI(self):
@@ -263,6 +264,15 @@ class MainWindow(QMainWindow):
         self.login()
 
 
+    def init_threads(self):
+        self.matchmaking_thread = MMThread()
+        # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
+        self.socket_thread = SocketThread()
+
+        self.matchmaking_thread.qt_print.connect(qt_print)
+        self.socket_thread.qt_print.connect(qt_print)
+
+
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
             local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
@@ -293,25 +303,18 @@ class MainWindow(QMainWindow):
     def start_matchmaking(self):
         if not hasattr(self, 'cookie_jar') or not self.cookie_jar:
             qt_print('Log in to matchmake')
-            return False
+            return
 
         if not builtins.idle:
             qt_print('Already matchmaking, can\'t start matchmaking')
-            return False
+            return
 
         builtins.idle = False
-
-        self.matchmaking_thread = MMThread()
-        # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
-        self.socket_thread = SocketThread()
-
-        self.matchmaking_thread.qt_print.connect(qt_print)
         self.matchmaking_thread.start()
-        self.socket_thread.qt_print.connect(qt_print)
         self.socket_thread.start()
 
+        qt_change_status(MMStatus.IN_QUEUE)
         qt_print('Successfully started matchmaking')
-        return True
 
 
     def quit_matchmaking(self):
@@ -319,14 +322,15 @@ class MainWindow(QMainWindow):
             qt_print('Already idle, can\'t quit matcmaking')
             return
 
+        qt_print('Quitting matchmaking..')
+
         if hasattr(self, 'socket_thread') and self.socket_thread:
             self.socket_thread.ws.close()
-            self.socket_thread.quit()
-            self.socket_thread = None
+            self.socket_thread.wait()
 
         if hasattr(self, 'matchmaking_thread') and self.matchmaking_thread:
-            self.matchmaking_thread.quit()
-            self.matchmaking_thread = None
+            builtins.idle = True
+            self.matchmaking_thread.wait()
 
         if builtins.search_match_id:
             quit_queue = smashladder.quit_matchmaking(self.cookie_jar, builtins.search_match_id)

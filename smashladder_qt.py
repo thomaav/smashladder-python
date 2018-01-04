@@ -359,7 +359,8 @@ class MainWindow(QMainWindow):
 
         builtins.idle = True
         self.matchmaking_thread.wait()
-        self.challenge_thread.terminate()
+        if self.challenge_thread.isRunning():
+            self.challenge_thread.terminate()
 
         if builtins.search_match_id:
             quit_queue = smashladder.quit_matchmaking(self.cookie_jar, builtins.search_match_id)

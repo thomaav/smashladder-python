@@ -7,6 +7,7 @@ import threading
 import os.path
 import time
 import enum
+import websocket
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
@@ -71,6 +72,43 @@ class MMThread(QThread):
                 time.sleep(5)
 
         self.finished.emit()
+
+
+class SocketThread(QThread):
+    qt_print = pyqtSignal(str)
+
+    def on_message(self, ws, raw_message):
+        if '\"authentication\":false' in raw_message:
+            self.qt_print.emit('Authentication false, exiting')
+            exit(1)
+        elif 'private_chat' in raw_message:
+            processed_message = smashladder.process_private_chat_message(raw_message)
+            self.qt_print.emit(processed_message['info'])
+        elif 'current_matches' in raw_message:
+            processed_message = smashladder.process_match_message(raw_message)
+            if not processed_message['typing']:
+                self.qt_print.emit(processed_message['info'])
+        elif 'open_challenges' in raw_message:
+            processed_message = smashladder.process_open_challenges(local.cookie_jar, raw_message)
+            if processed_message['match_id']:
+                self.qt_print.emit(processed_message['info'])
+
+
+    def on_error(self, ws, error):
+        print(error)
+
+
+    def on_close(self, ws):
+        print('WebSocket to smashladder closed')
+
+
+    def run(self):
+        ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
+                                    on_message = self.on_message,
+                                    on_error = self.on_error,
+                                    on_close = self.on_close,
+                                    cookie = local.cookie_jar_to_string(local.cookie_jar))
+        ws.run_forever()
 
 
 class LoginWindow(QWidget):
@@ -258,17 +296,14 @@ class MainWindow(QMainWindow):
 
         builtins.idle = False
 
-        # matchmaking_thread = threading.Thread(target=smashladder.matchmaking_loop, args=(self.cookie_jar,))
-        self.matchmaking_thread = MMThread()
+        # self.matchmaking_thread = MMThread()
         # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
-        # main_socket_thread = threading.Thread(target=smashladder_sockets.connect_to_smashladder, args=(self.cookie_jar,))
-        # self.matchmaking_thread.daemon = True
-        # challenge_thread.daemon = True
-        # main_socket_thread.daemon = True
-        self.matchmaking_thread.qt_print.connect(qt_print)
-        self.matchmaking_thread.start()
-        # challenge_thread.start()
-        # main_socket_thread.start()
+        self.socket_thread = SocketThread()
+
+        # self.matchmaking_thread.qt_print.connect(qt_print)
+        # self.matchmaking_thread.start()
+        self.socket_thread.qt_print.connect(qt_print)
+        self.socket_thread.start()
 
         return True
 

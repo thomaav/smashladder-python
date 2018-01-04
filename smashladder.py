@@ -170,6 +170,14 @@ def accept_match_challenge(cookie_jar, match_id):
                       content, cookie_jar)
 
 
+def decline_match_challenge(cookie_jar, match_id):
+    content = { 'accept': '0',
+                'match_id': match_id,
+                'host_code': '' }
+    http_post_request('https://www.smashladder.com/matchmaking/reply_to_match',
+                      content, cookie_jar)
+
+
 def challenge_active_searches_friendlies(cookie_jar):
     active_whitelisted_searches = retrieve_active_whitelisted_searches(cookie_jar)
 
@@ -218,7 +226,7 @@ def retrieve_ignored_users(cookie_jar):
     return ignored_users
 
 
-def handle_private_chat_message(message):
+def process_private_chat_message(message):
     message = json.loads(message)
     chat_data = message['private_chat']
 
@@ -226,19 +234,18 @@ def handle_private_chat_message(message):
         if 'username' in chat_data[user_id]:
             username = chat_data[user_id]['username']
         else:
-            username = OWN_USERNAME
+            username = 'You'
         chat_messages = chat_data[user_id]['chat_messages']
         for message_key in chat_messages:
             chat_message = chat_messages[message_key]['message']
 
-    # if your own message, you don't get a username
     if username:
-        smashladder_qt.qt_print('[private chat] ' + username + ': ' + chat_message)
+        return { 'info': '[private chat] ' + username + ': ' + chat_message }
     else:
-        smashladder_qt.qt_print('[private chat] ' + username + ': ' + chat_message)
+        return { 'info': 'Unspecified failure in handling private chat message' }
 
 
-def handle_match_message(message):
+def process_match_message(message):
     message = json.loads(message)
 
     # if received message is about getting an answer to a challenge,
@@ -246,7 +253,9 @@ def handle_match_message(message):
     for match_id in message['current_matches']:
         if 'start_time' in message['current_matches'][match_id]:
             enter_match(match_id)
-            return
+            return { 'match_id': match_id,
+                     'typing': False,
+                     'info': 'Entered match: ' + match_id }
 
     for match_id in message['current_matches']:
         match_chat_data = message['current_matches'][match_id]['chat']['chat_messages']
@@ -259,10 +268,16 @@ def handle_match_message(message):
                     username = match_chat_data[chat_message_id]['player']['username']
 
     if 'chat_message' in locals():
-        smashladder_qt.qt_print('[match chat] ' + username + ': ', chat_message)
+        return { 'match_id': None,
+                 'typing': False,
+                 'info': '[match chat] ' + username + ': ' + chat_message }
+    else:
+        return { 'match_id': None,
+                 'typing': True,
+                 'info': 'Message for participant typing - safe to ignore' }
 
 
-def handle_open_challenges(cookie_jar, message):
+def process_open_challenges(cookie_jar, message):
     message = json.loads(message)
 
     is_ranked = []
@@ -280,14 +295,20 @@ def handle_open_challenges(cookie_jar, message):
             opponent_username.append(challenge_info['player2']['username'])
             opponent_country.append(challenge_info['player2']['location']['country']['name'])
 
-    for i in range(len(match_ids)):
-        smashladder_qt.qt_print(opponent_username[i] + ' from ' + opponent_country[i] + ' has challenged you to ' + ladder_name[i] + ' (ranked (' + str(is_ranked[i]) + '))')
-
     for i, country in enumerate(opponent_country):
-        if country in WHITELISTED_COUNTRIES and not builtins.idle:
+        if country in WHITELISTED_COUNTRIES \
+           and not builtins.idle \
+           and opponent_username[i] not in BLACKLISTED_PLAYERS:
             accept_match_challenge(cookie_jar, match_ids[i])
-            smashladder_qt.qt_print('Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] + '.')
-            break;
+            return { 'match_id': match_ids[i],
+                     'info': 'Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] }
+        else:
+            decline_match_challenge(cookie_jar, match_ids[i])
+            return { 'match_id': match_ids[i],
+                     'info': 'Declined challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] }
+
+    return { 'match_id': None,
+             'info': 'No awaiting challenges matching config criteria' }
 
 
 def report_friendly_done(cookie_jar, match_id):

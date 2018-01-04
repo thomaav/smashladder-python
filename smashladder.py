@@ -108,16 +108,18 @@ def retrieve_active_searches(cookie_jar):
     return active_searches
 
 
-def retrieve_active_whitelisted_searches(cookie_jar):
+def retrieve_relevant_searches(cookie_jar):
     active_searches = retrieve_active_searches(cookie_jar)
 
-    active_whitelisted_searches = dict()
+    relevant_searches = dict()
     for match_id in active_searches:
         country = active_searches[match_id]['country']
-        if country in WHITELISTED_COUNTRIES:
-            active_whitelisted_searches[match_id] = active_searches[match_id]
+        username = active_searches[match_id]['username']
+        if country in WHITELISTED_COUNTRIES \
+           and username not in BLACKLISTED_PLAYERS:
+            relevant_searches[match_id] = active_searches[match_id]
 
-    return active_whitelisted_searches
+    return relevant_searches
 
 
 def retrieve_challenges_awaiting_reply(cookie_jar):
@@ -153,8 +155,8 @@ def decline_match_challenge(cookie_jar, match_id):
                       content, cookie_jar)
 
 
-def challenge_active_searches_friendlies(cookie_jar):
-    active_whitelisted_searches = retrieve_active_whitelisted_searches(cookie_jar)
+def challenge_relevant_friendlies(cookie_jar, own_username):
+    relevant_searches = retrieve_relevant_searches(cookie_jar)
 
     # don't challenge people again if already waiting for reply,
     # users who are ignored,
@@ -162,31 +164,33 @@ def challenge_active_searches_friendlies(cookie_jar):
     challenges_awaiting_reply = retrieve_challenges_awaiting_reply(cookie_jar)
     ignored_users = retrieve_ignored_users(cookie_jar)
     blacklisted_players = BLACKLISTED_PLAYERS
+    challenged_players = []
 
-    for match_id in active_whitelisted_searches:
-        match = active_whitelisted_searches[match_id]
+    print(relevant_searches)
+
+    for match_id in relevant_searches:
+        match = relevant_searches[match_id]
         ladder_name = match["ladder_name"]
         player_id = match["player_id"]
         if ladder_name in WHITELISTED_GAMES.keys():
-            content = { 'team_size': '1',
-                        'game_id': WHITELISTED_GAMES[ladder_name],
-                        'match_count': '0',
-                        'ranked': '0',
-                        'challenge_player_id': player_id,
-                        'match-id': '' }
+            content = { 'challenge_player_id': player_id,
+                        'match-id': match_id }
 
             opponent_username = match['username']
             opponent_country = match['country']
 
-            if opponent_username == OWN_USERNAME or \
+            if opponent_username == own_username or \
                opponent_username in challenges_awaiting_reply or \
-               opponent_username in ignored_users or \
-               opponent_username in blacklisted_players:
+               opponent_username in ignored_users:
                 continue
 
-            http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
-                              content, cookie_jar)
-            smashladder_qt.qt_print("Trying to challenge " + opponent_username + " from " + opponent_country + " to " + ladder_name)
+            response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
+                                         content, cookie_jar)
+            print(response.text)
+            challenged_players.append({ 'username': opponent_username,
+                                        'country': opponent_country })
+
+    return challenged_players
 
 
 def retrieve_ignored_users(cookie_jar):
@@ -300,11 +304,3 @@ def finished_chatting_with_match(cookie_jar, match_id):
     builtins.current_match_id = None
     builtins.in_match = False
 
-
-def challenge_loop(cookie_jar):
-    while True:
-        if builtins.in_match or builtins.idle:
-            sys.exit()
-        else:
-            challenge_active_searches_friendlies(cookie_jar)
-            time.sleep(5)

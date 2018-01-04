@@ -3,6 +3,7 @@ import local
 import sys
 import smashladder
 import smashladder_requests
+import smashladder_exceptions
 import threading
 import os.path
 import time
@@ -64,8 +65,17 @@ class MMThread(QThread):
                 time.sleep(1)
                 continue
             else:
-                mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
+                try:
+                    mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
+                except smashladder_exceptions.RequestTimeoutException:
+                    self.qt_print.emit('Timeout to server when starting matchmaking search')
+
+                if 'Already in queue' in mm_status['info']:
+                    builtins.in_queue = True
+                    continue
+
                 self.qt_print.emit(mm_status['info'])
+
 
                 if mm_status['match_id']:
                     builtins.in_queue = True
@@ -105,11 +115,30 @@ class SocketThread(QThread):
 
     def run(self):
         self.ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
-                                    on_message = self.on_message,
-                                    on_error = self.on_error,
-                                    on_close = self.on_close,
-                                    cookie = local.cookie_jar_to_string(local.cookie_jar))
-        self.ws.run_forever()
+                                         on_message = self.on_message,
+                                         on_error = self.on_error,
+                                         on_close = self.on_close,
+                                         cookie = local.cookie_jar_to_string(local.cookie_jar))
+        self.ws.run_forever(ping_interval = 20, ping_timeout = 5)
+
+
+class ChallengeThread(QThread):
+    qt_print = pyqtSignal(str)
+    secs_waited = 5
+
+    def run(self):
+        while True:
+            if builtins.in_match or builtins.idle:
+                break
+
+            self.secs_waited += 1
+            if self.secs_waited >= 5:
+                self.secs_waited = 0
+                challenged_players = smashladder.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
+                for player in challenged_players:
+                    self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
+
+            time.sleep(1)
 
 
 class LoginWindow(QWidget):
@@ -184,15 +213,13 @@ class LoginWindow(QWidget):
         QApplication.processEvents()
         self.repaint()
 
-        try:
-            if smashladder_requests.login_to_smashladder(username, password):
-                self.main_window.login()
-                self.login_status.hide()
-                self.close()
-            else:
-                self.login_status.setText('Wrong username and/or password')
-        except smashladder_requests.FailingRequestException as e:
-            self.login_status.setText('Error logging in, are you connected to the internet?')
+        if smashladder_requests.login_to_smashladder(username, password):
+            self.main_window.login()
+            self.main_window.username = username
+            self.login_status.hide()
+            self.close()
+        else:
+            self.login_status.setText('Wrong username and/or password')
 
 
 class MainWindow(QMainWindow):
@@ -266,17 +293,19 @@ class MainWindow(QMainWindow):
 
     def init_threads(self):
         self.matchmaking_thread = MMThread()
-        # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
         self.socket_thread = SocketThread()
+        self.challenge_thread = ChallengeThread()
 
         self.matchmaking_thread.qt_print.connect(qt_print)
         self.socket_thread.qt_print.connect(qt_print)
+        self.challenge_thread.qt_print.connect(qt_print)
 
 
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
             local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
+            self.username = self.cookie_jar['username']
 
             self.relog_button.hide()
             self.logged_in_label.show()
@@ -312,6 +341,7 @@ class MainWindow(QMainWindow):
         builtins.idle = False
         self.matchmaking_thread.start()
         self.socket_thread.start()
+        self.challenge_thread.start()
 
         qt_change_status(MMStatus.IN_QUEUE)
         qt_print('Successfully started matchmaking')
@@ -324,13 +354,12 @@ class MainWindow(QMainWindow):
 
         qt_print('Quitting matchmaking..')
 
-        if hasattr(self, 'socket_thread') and self.socket_thread:
-            self.socket_thread.ws.close()
-            self.socket_thread.wait()
+        self.socket_thread.ws.close()
+        self.socket_thread.wait()
 
-        if hasattr(self, 'matchmaking_thread') and self.matchmaking_thread:
-            builtins.idle = True
-            self.matchmaking_thread.wait()
+        builtins.idle = True
+        self.matchmaking_thread.wait()
+        self.challenge_thread.wait()
 
         if builtins.search_match_id:
             quit_queue = smashladder.quit_matchmaking(self.cookie_jar, builtins.search_match_id)

@@ -166,8 +166,6 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
     blacklisted_players = BLACKLISTED_PLAYERS
     challenged_players = []
 
-    print(relevant_searches)
-
     for match_id in relevant_searches:
         match = relevant_searches[match_id]
         ladder_name = match["ladder_name"]
@@ -186,7 +184,6 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
 
             response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
                                          content, cookie_jar)
-            print(response.text)
             challenged_players.append({ 'username': opponent_username,
                                         'country': opponent_country })
 

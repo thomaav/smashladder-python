@@ -182,8 +182,12 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
                opponent_username in ignored_users:
                 continue
 
-            response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
-                                         content, cookie_jar)
+            if not builtins.debug_smashladder:
+                response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
+                                             content, cookie_jar)
+            else:
+                print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
+
             challenged_players.append({ 'username': opponent_username,
                                         'country': opponent_country })
 
@@ -274,7 +278,11 @@ def process_open_challenges(cookie_jar, message):
     for i, country in enumerate(opponent_country):
         if country in WHITELISTED_COUNTRIES \
            and opponent_username[i] not in BLACKLISTED_PLAYERS:
-            accept_match_challenge(cookie_jar, match_ids[i])
+            if not builtins.debug_smashladder:
+                accept_match_challenge(cookie_jar, match_ids[i])
+            else:
+                print('[DEBUG]: Would accept challenge ' + opponent_username[i] + ' from ' + country)
+
             return { 'match_id': match_ids[i],
                      'info': 'Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] }
         else:

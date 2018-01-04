@@ -90,8 +90,7 @@ class SocketThread(QThread):
     def on_message(self, ws, raw_message):
         if '\"authentication\":false' in raw_message:
             self.qt_print.emit('Authentication false, exiting')
-            ws.close()
-            self.exit(1)
+            self.ws.close()
         elif 'private_chat' in raw_message:
             processed_message = smashladder.process_private_chat_message(raw_message)
             self.qt_print.emit(processed_message['info'])

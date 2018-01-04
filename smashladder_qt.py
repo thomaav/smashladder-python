@@ -20,6 +20,8 @@ MAIN_UI_FILE = 'conf/mainwindow.ui'
 
 def qt_print(text):
     main_window.matchmaking_info.append(text)
+    QApplication.processEvents()
+    main_window.repaint()
 
 # import here after initialization to receive it in smashladder_sockets
 import smashladder_sockets

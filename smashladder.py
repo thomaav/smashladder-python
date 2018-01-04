@@ -34,13 +34,9 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                       'ranked': ranked,
                       'host_code': host_code, }
 
-    if not builtins.in_queue:
-        response = http_post_request('https://www.smashladder.com/matchmaking/begin_matchmaking',
-                                     match_content,
-                                     cookie_jar)
-    else:
-        return { 'match_id': None, 'info': 'Already in queue, not starting matchmaking' }
-
+    response = http_post_request('https://www.smashladder.com/matchmaking/begin_matchmaking',
+                                 match_content,
+                                 cookie_jar)
     response_body = json.loads(response.text)
 
     # go through returned current searches, the first is your own
@@ -59,11 +55,9 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
             return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted' }
 
     if (own_match_id):
-        builtins.in_queue = True
-        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IN_QUEUE)
-        return { 'match_id': own_match_id, 'info': 'Success! Now matchmaking' }
+        return { 'match_id': own_match_id, 'info': 'Success! Queued for matchmaking: ' + own_match_id }
     else:
-        return { 'match_id': None, 'info': 'Unspecified failure. Matchmaking aborted' }
+        return { 'match_id': None, 'info': 'Unspecified failure. Queueing aborted' }
 
 
 def enter_match(match_id):
@@ -77,21 +71,13 @@ def enter_match(match_id):
 def quit_matchmaking(cookie_jar, match_id):
     content = { 'match_id': match_id }
 
-    http_post_request('https://www.smashladder.com/matchmaking/end_matchmaking',
-                      content, cookie_jar)
+    response = http_post_request('https://www.smashladder.com/matchmaking/end_matchmaking',
+                                 content, cookie_jar)
+    response_body = json.loads(response.text)
 
-
-def quit_all_matchmaking(cookie_jar):
-    if builtins.search_match_id:
-        quit_matchmaking(cookie_jar, builtins.search_match_id)
-        builtins.in_queue = False
-        builtins.search_match_id = None
-    elif builtins.in_match:
-        report_friendly_done(cookie_jar, builtins.current_match_id)
-        finished_chatting_with_match(cookie_jar, builtins.current_match_id)
-
-    builtins.idle = True
-    builtins.current_match_id = None
+    if 'success' in response_body:
+        return True
+    return False
 
 
 def retrieve_active_searches(cookie_jar):
@@ -286,7 +272,6 @@ def process_open_challenges(cookie_jar, message):
 
     for i, country in enumerate(opponent_country):
         if country in WHITELISTED_COUNTRIES \
-           and not builtins.idle \
            and opponent_username[i] not in BLACKLISTED_PLAYERS:
             accept_match_challenge(cookie_jar, match_ids[i])
             return { 'match_id': match_ids[i],
@@ -314,19 +299,6 @@ def finished_chatting_with_match(cookie_jar, match_id):
                       content, cookie_jar)
     builtins.current_match_id = None
     builtins.in_match = False
-
-
-def matchmaking_loop(cookie_jar):
-    while True:
-        if builtins.in_match or builtins.idle:
-            sys.exit()
-        else:
-            if builtins.in_queue:
-                time.sleep(5)
-                continue
-
-        builtins.search_match_id = begin_matchmaking(cookie_jar, 1, 2, 0, '', 0, '')
-        time.sleep(5)
 
 
 def challenge_loop(cookie_jar):

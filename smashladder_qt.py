@@ -15,9 +15,6 @@ from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCurs
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
-
-BUTTON_SIZE_X = 100
-BUTTON_SIZE_Y = 26
 MAIN_UI_FILE = 'conf/mainwindow.ui'
 
 def qt_print(text):
@@ -69,9 +66,12 @@ class MMThread(QThread):
                 mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
                 builtins.search_match_id = mm_status['match_id']
                 self.qt_print.emit(mm_status['info'])
-                time.sleep(5)
 
-        self.finished.emit()
+                if mm_status['match_id']:
+                    qt_change_status(MMStatus.IN_QUEUE)
+                    builtins.in_queue = True
+
+                time.sleep(5)
 
 
 class SocketThread(QThread):
@@ -297,16 +297,16 @@ class MainWindow(QMainWindow):
 
         if not builtins.idle:
             qt_print('Already matchmaking, can\'t start matchmaking')
-            return
+            return False
 
         builtins.idle = False
 
-        # self.matchmaking_thread = MMThread()
+        self.matchmaking_thread = MMThread()
         # challenge_thread = threading.Thread(target=smashladder.challenge_loop, args=(self.cookie_jar,))
         self.socket_thread = SocketThread()
 
-        # self.matchmaking_thread.qt_print.connect(qt_print)
-        # self.matchmaking_thread.start()
+        self.matchmaking_thread.qt_print.connect(qt_print)
+        self.matchmaking_thread.start()
         self.socket_thread.qt_print.connect(qt_print)
         self.socket_thread.start()
 
@@ -319,19 +319,28 @@ class MainWindow(QMainWindow):
             qt_print('Already idle, can\'t quit matcmaking')
             return
 
-        smashladder.quit_all_matchmaking(self.cookie_jar)
-
         if hasattr(self, 'socket_thread') and self.socket_thread:
             self.socket_thread.ws.close()
             self.socket_thread.quit()
-            self.socket_thread.wait()
             self.socket_thread = None
 
         if hasattr(self, 'matchmaking_thread') and self.matchmaking_thread:
             self.matchmaking_thread.quit()
-            self.matchmaking_thread.wait()
             self.matchmaking_thread = None
 
+        if builtins.search_match_id:
+            quit_queue = smashladder.quit_matchmaking(self.cookie_jar, builtins.search_match_id)
+            if quit_queue:
+                qt_print('Successfully unqueued match with id: ' + builtins.search_match_id)
+        elif builtins.in_match:
+            smashladder.report_friendly_done(self.cookie_jar, builtins.current_match_id)
+            smashladder.finished_chatting_with_match(self.cookie_jar, builtins.current_match_id)
+
+        builtins.in_queue = False
+        builtins.search_match_id = None
+        builtins.current_match_id = None
+        builtins.in_match = False
+        builtins.idle = True
         qt_change_status(MMStatus.IDLE)
         qt_print('Successfully quit matchmaking')
 

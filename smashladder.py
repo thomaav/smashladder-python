@@ -95,14 +95,13 @@ def quit_all_matchmaking(cookie_jar):
     if builtins.search_match_id:
         quit_matchmaking(cookie_jar, builtins.search_match_id)
         builtins.in_queue = False
+        builtins.search_match_id = None
     elif builtins.in_match:
         report_friendly_done(cookie_jar, builtins.current_match_id)
         finished_chatting_with_match(cookie_jar, builtins.current_match_id)
-        smashladder_qt.qt_change_match_status(None, False)
 
     builtins.idle = True
     builtins.current_match_id = None
-    smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
 
 
 def retrieve_active_searches(cookie_jar):

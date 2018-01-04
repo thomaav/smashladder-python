@@ -80,7 +80,8 @@ class SocketThread(QThread):
     def on_message(self, ws, raw_message):
         if '\"authentication\":false' in raw_message:
             self.qt_print.emit('Authentication false, exiting')
-            exit(1)
+            ws.close()
+            self.exit(1)
         elif 'private_chat' in raw_message:
             processed_message = smashladder.process_private_chat_message(raw_message)
             self.qt_print.emit(processed_message['info'])
@@ -95,20 +96,20 @@ class SocketThread(QThread):
 
 
     def on_error(self, ws, error):
-        print(error)
+        print('[WS ERROR]: ' + error)
 
 
     def on_close(self, ws):
-        print('WebSocket to smashladder closed')
+        pass
 
 
     def run(self):
-        ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
+        self.ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
                                     on_message = self.on_message,
                                     on_error = self.on_error,
                                     on_close = self.on_close,
                                     cookie = local.cookie_jar_to_string(local.cookie_jar))
-        ws.run_forever()
+        self.ws.run_forever()
 
 
 class LoginWindow(QWidget):
@@ -218,7 +219,7 @@ class MainWindow(QMainWindow):
         self.exit_button.clicked.connect(lambda: self.close())
 
         self.mm_button.clicked.connect(self.start_matchmaking)
-        self.quit_mm_button.clicked.connect(lambda: smashladder.quit_all_matchmaking(self.cookie_jar))
+        self.quit_mm_button.clicked.connect(self.quit_matchmaking)
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.whitelist_country.returnPressed.connect(self.whitelist_country_wrapper)
@@ -306,6 +307,23 @@ class MainWindow(QMainWindow):
         self.socket_thread.start()
 
         return True
+
+
+    def quit_matchmaking(self):
+        smashladder.quit_all_matchmaking(self.cookie_jar)
+
+        if hasattr(self, 'socket_thread') and self.socket_thread:
+            self.socket_thread.ws.close()
+            self.socket_thread.quit()
+            self.socket_thread.wait()
+            self.socket_thread = None
+
+        if hasattr(self, 'matchmaking_thread') and self.matchmaking_thread:
+            self.matchmaking_thread.quit()
+            self.matchmaking_thread.wait()
+            self.matchmaking_thread = None
+
+        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
 
 
     def center(self):

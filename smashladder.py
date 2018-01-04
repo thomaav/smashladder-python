@@ -182,6 +182,9 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
                opponent_username in ignored_users:
                 continue
 
+            if match['is_ranked']:
+                continue
+
             if not builtins.debug_smashladder:
                 response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
                                              content, cookie_jar)

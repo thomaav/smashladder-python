@@ -295,6 +295,10 @@ class MainWindow(QMainWindow):
             qt_print('Log in to matchmake')
             return False
 
+        if not builtins.idle:
+            qt_print('Already matchmaking, can\'t start matchmaking')
+            return
+
         builtins.idle = False
 
         # self.matchmaking_thread = MMThread()
@@ -306,10 +310,15 @@ class MainWindow(QMainWindow):
         self.socket_thread.qt_print.connect(qt_print)
         self.socket_thread.start()
 
+        qt_print('Successfully started matchmaking')
         return True
 
 
     def quit_matchmaking(self):
+        if builtins.idle:
+            qt_print('Already idle, can\'t quit matcmaking')
+            return
+
         smashladder.quit_all_matchmaking(self.cookie_jar)
 
         if hasattr(self, 'socket_thread') and self.socket_thread:
@@ -323,7 +332,8 @@ class MainWindow(QMainWindow):
             self.matchmaking_thread.wait()
             self.matchmaking_thread = None
 
-        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
+        qt_change_status(MMStatus.IDLE)
+        qt_print('Successfully quit matchmaking')
 
 
     def center(self):

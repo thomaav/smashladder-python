@@ -77,18 +77,8 @@ def enter_match(match_id):
 def quit_matchmaking(cookie_jar, match_id):
     content = { 'match_id': match_id }
 
-    response = http_post_request('https://www.smashladder.com/matchmaking/end_matchmaking',
-                                 content, cookie_jar)
-    response_body = json.loads(response.text)
-
-    if builtins.idle:
-        return
-
-    if 'success' in response_body:
-        smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IDLE)
-        smashladder_qt.qt_print('Success! Quit matchmaking with id: ' + match_id)
-    else:
-        smashladder_qt.qt_print('Failure! Could not quit match with id: ' + match_id)
+    http_post_request('https://www.smashladder.com/matchmaking/end_matchmaking',
+                      content, cookie_jar)
 
 
 def quit_all_matchmaking(cookie_jar):

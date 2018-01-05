@@ -60,14 +60,6 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
         return { 'match_id': None, 'info': 'Unspecified failure. Queueing aborted' }
 
 
-def enter_match(match_id):
-    builtins.current_match_id = match_id
-    builtins.in_match = True
-    builtins.in_queue = False
-    builtins.search_match_id = None
-    smashladder_qt.qt_change_status(smashladder_qt.MMStatus.IN_MATCH)
-
-
 def quit_matchmaking(cookie_jar, match_id):
     content = { 'match_id': match_id }
 
@@ -138,8 +130,6 @@ def retrieve_challenges_awaiting_reply(cookie_jar):
 
 
 def accept_match_challenge(cookie_jar, match_id):
-    enter_match(match_id)
-
     content = { 'accept': '1',
                 'match_id': match_id,
                 'host_code': '' }
@@ -235,7 +225,6 @@ def process_match_message(message):
     # print a message and set globals
     for match_id in message['current_matches']:
         if 'start_time' in message['current_matches'][match_id]:
-            enter_match(match_id)
             return { 'match_id': match_id,
                      'typing': False,
                      'info': 'Entered match: ' + match_id }

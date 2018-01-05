@@ -91,22 +91,35 @@ class MMThread(QThread):
 
 class SocketThread(QThread):
     qt_print = pyqtSignal(str)
+    entered_match = pyqtSignal(str)
 
     def on_message(self, ws, raw_message):
         if '\"authentication\":false' in raw_message:
             self.qt_print.emit('Authentication false, exiting')
             self.ws.close()
+
         elif 'private_chat' in raw_message:
             processed_message = smashladder.process_private_chat_message(raw_message)
             self.qt_print.emit(processed_message['info'])
+
         elif 'current_matches' in raw_message:
             processed_message = smashladder.process_match_message(raw_message)
+
+            if 'Entered match' in processed_message['info']:
+                self.entered_match.emit(processed_message['match_id'])
+                return
+
             if not processed_message['typing']:
                 self.qt_print.emit(processed_message['info'])
+
         elif 'open_challenges' in raw_message:
             processed_message = smashladder.process_open_challenges(local.cookie_jar, raw_message)
             if processed_message['match_id']:
                 self.qt_print.emit(processed_message['info'])
+
+            if 'Accepted challenge' in processed_message['info']:
+                self.entered_match.emit(processed_message['match_id'])
+
         elif 'searches' in raw_message:
             player = smashladder.process_new_search(local.cookie_jar, raw_message, main_window.username)
             if player:
@@ -298,6 +311,8 @@ class MainWindow(QMainWindow):
         self.socket_thread.qt_print.connect(qt_print)
         self.challenge_thread.qt_print.connect(qt_print)
 
+        self.socket_thread.entered_match.connect(self.entered_match)
+
 
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
@@ -375,6 +390,22 @@ class MainWindow(QMainWindow):
         builtins.idle = True
         qt_change_status(MMStatus.IDLE)
         qt_print('Successfully quit matchmaking')
+
+
+    def entered_match(self, match_id):
+        builtins.current_match_id = match_id
+        builtins.in_match = True
+        builtins.in_queue = False
+        builtins.search_match_id = None
+
+        # quit threads that look for matches
+        builtins.idle = True
+        self.matchmaking_thread.wait()
+        if self.challenge_thread.isRunning():
+            self.challenge_thread.terminate()
+
+        qt_print('Entered match: ' + match_id)
+        qt_change_status(MMStatus.IN_MATCH)
 
 
     def center(self):

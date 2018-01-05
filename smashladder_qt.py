@@ -55,6 +55,10 @@ class MMThread(QThread):
 
     def run(self):
         while True:
+            if builtins.debug_smashladder:
+                print('[DEBUG]: Would start matchmaking search')
+                break
+
             if builtins.in_match or builtins.idle:
                 break
 
@@ -77,7 +81,6 @@ class MMThread(QThread):
                     continue
 
                 self.qt_print.emit(mm_status['info'])
-
 
                 if mm_status['match_id']:
                     builtins.in_queue = True

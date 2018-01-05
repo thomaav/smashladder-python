@@ -1,0 +1,2 @@
+# Make sure conf directory exists and is empty in repo
+!.gitignore

@@ -16,7 +16,9 @@ from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCurs
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
-MAIN_UI_FILE = 'conf/mainwindow.ui'
+MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
+MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
+
 
 def qt_print(text):
     main_window.matchmaking_info.append(text)
@@ -167,7 +169,7 @@ class LoginWindow(QWidget):
         self.setObjectName('LoginWidget')
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 
-        with open('conf/mainwindow.css') as f:
+        with open(MAINWINDOW_CSS_FILE) as f:
             self.setStyleSheet(f.read())
 
         # center the widget on screen
@@ -241,7 +243,7 @@ class MainWindow(QMainWindow):
 
 
     def initUI(self):
-        uic.loadUi(MAIN_UI_FILE, self)
+        uic.loadUi(MAINWINDOW_UI_FILE, self)
         # QToolTip.setFont(QFont('SansSerif', 10))
         # self.setToolTip('This is a <b>QWidget</b> widget')
 
@@ -249,9 +251,8 @@ class MainWindow(QMainWindow):
         self.setFixedSize(self.width(), self.height())
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setWindowTitle('smashladder-python')
-        self.setWindowIcon(QIcon('conf/smashladder.png'))
 
-        with open('conf/mainwindow.css') as f:
+        with open(MAINWINDOW_CSS_FILE) as f:
             self.setStyleSheet(f.read())
 
         self.minimize_button.clicked.connect(lambda: self.showMinimized())
@@ -265,8 +266,8 @@ class MainWindow(QMainWindow):
         self.blacklist_player_button.clicked.connect(self.blacklist_player_wrapper)
         self.blacklist_player_username.returnPressed.connect(self.blacklist_player_wrapper)
 
-        self.list_blacklisted_players_button.setIcon(QIcon('conf/list.ico'))
-        self.list_whitelisted_countries_button.setIcon(QIcon('conf/list.ico'))
+        self.list_blacklisted_players_button.setIcon(QIcon('static/list.ico'))
+        self.list_whitelisted_countries_button.setIcon(QIcon('static/list.ico'))
         self.list_blacklisted_players_button.clicked.connect(self.list_blacklisted_players)
         self.list_whitelisted_countries_button.clicked.connect(self.list_whitelisted_countries)
 

@@ -1,12 +1,10 @@
 import builtins
 import json
-import main
-import smashladder_qt
 import re
 import sys
 import time
-from local import *
-from smashladder_requests import *
+from smashladder.local import *
+from smashladder.slrequests import *
 
 
 builtins.current_match_id = None

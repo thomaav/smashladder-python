@@ -2,9 +2,6 @@ import pickle
 import os.path
 
 
-OWN_USERNAME = 'tourniquet'
-
-
 def save_cookies_to_file(cookie_jar, filename):
     with open(filename, 'wb') as f:
         pickle.dump(cookie_jar, f)

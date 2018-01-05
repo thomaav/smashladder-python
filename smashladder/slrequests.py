@@ -1,6 +1,6 @@
-import local
+import smashladder.local
 import requests
-import smashladder_exceptions
+import smashladder.slexceptions as slexceptions
 from getpass import getpass
 
 TIMEOUT = 5
@@ -22,14 +22,14 @@ def http_get_request(url, cookie_jar={}, headers=DEFAULT_HEADERS):
     try:
         return requests.get(url, cookies=cookie_jar, data=headers, timeout=TIMEOUT)
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-        raise smashladder_exceptions.RequestTimeoutException('HTTP get request to ' + url + ' timed out')
+        raise slexceptions.RequestTimeoutException('HTTP get request to ' + url + ' timed out')
 
 
 def http_post_request(url, data, cookie_jar={}, headers=DEFAULT_HEADERS):
     try:
         return requests.post(url, data=data, cookies=cookie_jar, headers=headers, timeout=TIMEOUT)
     except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-        raise smashladder_exceptions.RequestTimeoutException('HTTP post request to ' + url + ' timed out')
+        raise slexceptions.RequestTimeoutException('HTTP post request to ' + url + ' timed out')
 
 
 def get_login_credentials():

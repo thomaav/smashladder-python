@@ -1,9 +1,9 @@
 import builtins
-import local
 import sys
-import smashladder
-import smashladder_requests
-import smashladder_exceptions
+import smashladder.local as local
+import smashladder.sl as sl
+import smashladder.slrequests as slrequests
+import smashladder.slexceptions as slexceptions
 import threading
 import os.path
 import time
@@ -22,9 +22,6 @@ def qt_print(text):
     main_window.matchmaking_info.append(text)
     QApplication.processEvents()
     main_window.repaint()
-
-# import here after initialization to receive it in smashladder_sockets
-import smashladder_sockets
 
 
 def qt_change_status(status):
@@ -72,8 +69,8 @@ class MMThread(QThread):
                 continue
             else:
                 try:
-                    mm_status = smashladder.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
-                except smashladder_exceptions.RequestTimeoutException:
+                    mm_status = sl.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
+                except slexceptions.RequestTimeoutException:
                     self.qt_print.emit('Timeout to server when starting matchmaking search')
 
                 if 'Already in queue' in mm_status['info']:
@@ -99,11 +96,11 @@ class SocketThread(QThread):
             self.ws.close()
 
         elif 'private_chat' in raw_message:
-            processed_message = smashladder.process_private_chat_message(raw_message)
+            processed_message = sl.process_private_chat_message(raw_message)
             self.qt_print.emit(processed_message['info'])
 
         elif 'current_matches' in raw_message:
-            processed_message = smashladder.process_match_message(raw_message)
+            processed_message = sl.process_match_message(raw_message)
 
             if 'Entered match' in processed_message['info']:
                 self.entered_match.emit(processed_message['match_id'])
@@ -113,7 +110,7 @@ class SocketThread(QThread):
                 self.qt_print.emit(processed_message['info'])
 
         elif 'open_challenges' in raw_message:
-            processed_message = smashladder.process_open_challenges(local.cookie_jar, raw_message)
+            processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
             if processed_message['match_id']:
                 self.qt_print.emit(processed_message['info'])
 
@@ -124,7 +121,7 @@ class SocketThread(QThread):
             if builtins.in_match:
                 return
 
-            player = smashladder.process_new_search(local.cookie_jar, raw_message, main_window.username)
+            player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
             if player:
                 self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
@@ -150,7 +147,7 @@ class ChallengeThread(QThread):
     qt_print = pyqtSignal(str)
 
     def run(self):
-        challenged_players = smashladder.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
+        challenged_players = sl.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
         for player in challenged_players:
             self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
@@ -227,7 +224,7 @@ class LoginWindow(QWidget):
         QApplication.processEvents()
         self.repaint()
 
-        if smashladder_requests.login_to_smashladder(username, password):
+        if slrequests.login_to_smashladder(username, password):
             self.main_window.login()
             self.main_window.username = username
             self.login_status.hide()
@@ -379,12 +376,12 @@ class MainWindow(QMainWindow):
             self.challenge_thread.terminate()
 
         if builtins.search_match_id:
-            quit_queue = smashladder.quit_matchmaking(self.cookie_jar, builtins.search_match_id)
+            quit_queue = sl.quit_matchmaking(self.cookie_jar, builtins.search_match_id)
             if quit_queue:
                 qt_print('Successfully unqueued match with id: ' + builtins.search_match_id)
         elif builtins.in_match:
-            smashladder.report_friendly_done(self.cookie_jar, builtins.current_match_id)
-            smashladder.finished_chatting_with_match(self.cookie_jar, builtins.current_match_id)
+            sl.report_friendly_done(self.cookie_jar, builtins.current_match_id)
+            sl.finished_chatting_with_match(self.cookie_jar, builtins.current_match_id)
 
         builtins.in_queue = False
         builtins.search_match_id = None

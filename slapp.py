@@ -1,5 +1,5 @@
 import builtins
-import smashladder_qt
+import smashladder.slqt as slqt
 import sys
 import time
 
@@ -10,7 +10,7 @@ def main():
     else:
         builtins.debug_smashladder = False
 
-    sys.exit(smashladder_qt.app.exec_())
+    sys.exit(slqt.app.exec_())
 
 
 if __name__ == '__main__':

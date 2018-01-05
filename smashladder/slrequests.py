@@ -1,4 +1,4 @@
-import smashladder.local
+import smashladder.local as local
 import requests
 import smashladder.slexceptions as slexceptions
 from getpass import getpass

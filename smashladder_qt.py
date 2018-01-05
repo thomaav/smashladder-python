@@ -132,21 +132,11 @@ class SocketThread(QThread):
 
 class ChallengeThread(QThread):
     qt_print = pyqtSignal(str)
-    secs_waited = 5
 
     def run(self):
-        while True:
-            if builtins.in_match or builtins.idle:
-                break
-
-            self.secs_waited += 1
-            if self.secs_waited >= 5:
-                self.secs_waited = 0
-                challenged_players = smashladder.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
-                for player in challenged_players:
-                    self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
-
-            time.sleep(1)
+        challenged_players = smashladder.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
+        for player in challenged_players:
+            self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
 
 class LoginWindow(QWidget):

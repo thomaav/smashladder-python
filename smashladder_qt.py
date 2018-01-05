@@ -361,7 +361,7 @@ class MainWindow(QMainWindow):
 
 
     def quit_matchmaking(self):
-        if builtins.idle:
+        if builtins.idle and not builtins.in_match:
             qt_print('Already idle, can\'t quit matcmaking')
             return
 

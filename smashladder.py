@@ -297,7 +297,7 @@ def process_open_challenges(cookie_jar, message):
              'info': 'No awaiting challenges matching config criteria' }
 
 
-def process_new_search(cookie_jar, message):
+def process_new_search(cookie_jar, message, own_username):
     message = json.loads(message)
 
     for match_id in message['searches']:
@@ -315,7 +315,8 @@ def process_new_search(cookie_jar, message):
                 break
 
             if opponent_country in WHITELISTED_COUNTRIES and \
-               opponent_username not in BLACKLISTED_PLAYERS:
+               opponent_username not in BLACKLISTED_PLAYERS and \
+               opponent_username != own_username:
                 if not builtins.debug_smashladder:
                     content = { 'challenge_player_id': opponent_id,
                                 'match_id': match_id }

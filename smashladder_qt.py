@@ -108,7 +108,7 @@ class SocketThread(QThread):
             if processed_message['match_id']:
                 self.qt_print.emit(processed_message['info'])
         elif 'searches' in raw_message:
-            player = smashladder.process_new_search(local.cookie_jar, raw_message)
+            player = smashladder.process_new_search(local.cookie_jar, raw_message, main_window.username)
             if player:
                 self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 

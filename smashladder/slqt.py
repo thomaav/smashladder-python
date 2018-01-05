@@ -12,7 +12,7 @@ import websocket
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
-    QTextFormat
+    QTextFormat, QCursor
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
@@ -293,6 +293,11 @@ class MainWindow(QMainWindow):
         self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
 
+        self.mpressed = False
+        self.mousePressEvent = (self.mouse_press)
+        self.mouseReleaseEvent = (self.mouse_release)
+        self.mouseMoveEvent = (self.mouse_move)
+
         self.show()
 
         # we want the creation of the main window to be _done_ before
@@ -500,6 +505,33 @@ class MainWindow(QMainWindow):
             self.config_info.append(country)
 
         self.config_info.verticalScrollBar().setValue(0)
+
+
+    def mouse_press(self, evt):
+        cursor = QCursor()
+        pos = cursor.pos()
+        geometry = self.geometry()
+
+        self.mpress_cur_x = pos.x()
+        self.mpress_cur_y = pos.y()
+        self.mpress_x = geometry.x()
+        self.mpress_y = geometry.y()
+        self.mpressed = True
+
+
+    def mouse_release(self, evt):
+        self.mpressed = False
+
+
+    def mouse_move(self, evt):
+        if self.mpressed:
+            cursor = QCursor()
+            pos = cursor.pos()
+
+            diff_x = pos.x() - self.mpress_cur_x
+            diff_y = pos.y() - self.mpress_cur_y
+
+            self.move(self.mpress_x + diff_x, self.mpress_y + diff_y)
 
 
 app = QApplication(sys.argv)

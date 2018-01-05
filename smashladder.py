@@ -297,6 +297,40 @@ def process_open_challenges(cookie_jar, message):
              'info': 'No awaiting challenges matching config criteria' }
 
 
+def process_new_search(cookie_jar, message):
+    message = json.loads(message)
+
+    for match_id in message['searches']:
+        if re.match('[0-9]{7,9}', match_id):
+            if 'is_removed' in message['searches'][match_id]:
+                break
+
+            match_info = message['searches'][match_id]
+            ladder_name = match_info['ladder_name']
+            opponent_username = match_info['player1']['username']
+            opponent_country = match_info['player1']['location']['country']['name']
+            opponent_id = match_info['player1']['id']
+
+            if match_info['is_ranked']:
+                break
+
+            if opponent_country in WHITELISTED_COUNTRIES and \
+               opponent_username not in BLACKLISTED_PLAYERS:
+                if not builtins.debug_smashladder:
+                    content = { 'challenge_player_id': opponent_id,
+                                'match_id': match_id }
+                    response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
+                                                 content, cookie_jar)
+                else:
+                    print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
+
+    if 'content' in locals():
+        return { 'username': opponent_username,
+                 'country': opponent_country }
+    else:
+        return None
+
+
 def report_friendly_done(cookie_jar, match_id):
     content = { 'won': 4,
                 'message': '',

@@ -140,7 +140,7 @@ class SocketThread(QThread):
                                          on_error = self.on_error,
                                          on_close = self.on_close,
                                          cookie = local.cookie_jar_to_string(local.cookie_jar))
-        self.ws.run_forever(ping_interval = 20, ping_timeout = 5)
+        self.ws.run_forever()
 
 
 class ChallengeThread(QThread):

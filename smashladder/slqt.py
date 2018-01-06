@@ -73,8 +73,9 @@ class MMThread(QThread):
             else:
                 try:
                     mm_status = sl.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
-                except slexceptions.RequestTimeoutException:
-                    self.qt_print.emit('Timeout to server when starting matchmaking search')
+                except slexceptions.RequestTimeoutException as e:
+                    self.qt_print.emit(str(e))
+                    break
 
                 if 'Already in queue' in mm_status['info']:
                     builtins.in_queue = True
@@ -114,7 +115,12 @@ class SocketThread(QThread):
                     self.qt_print.emit(processed_message['info'])
 
             elif 'open_challenges' in raw_message:
-                processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
+                try:
+                    processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
+                except slexceptions.RequestTimeoutException as e:
+                    self.qt_print.emit(str(e))
+                    return
+
                 if processed_message['match_id']:
                     self.qt_print.emit(processed_message['info'])
 
@@ -125,7 +131,12 @@ class SocketThread(QThread):
                 if builtins.in_match:
                     return
 
-                player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
+                try:
+                    player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
+                except slexceptions.RequestTimeoutException as e:
+                    self.qt_print.emit(str(e))
+                    return
+
                 if player:
                     self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
@@ -152,7 +163,12 @@ class ChallengeThread(QThread):
     qt_print = pyqtSignal(str)
 
     def run(self):
-        challenged_players = sl.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
+        try:
+            challenged_players = sl.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
+        except slexceptions.RequestTimeoutException as e:
+            self.qt_print.emit(str(e))
+            return
+
         for player in challenged_players:
             self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 

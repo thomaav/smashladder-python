@@ -143,6 +143,14 @@ def decline_match_challenge(cookie_jar, match_id):
                       content, cookie_jar)
 
 
+def challenge_opponent(cookie_jar, opponent_id, match_id):
+    content = { 'challenge_player_id': opponent_id,
+                'match_id': match_id }
+
+    return http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
+                             content, cookie_jar)
+
+
 def challenge_relevant_friendlies(cookie_jar, own_username):
     relevant_searches = retrieve_relevant_searches(cookie_jar)
 
@@ -159,9 +167,6 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
         ladder_name = match["ladder_name"]
         player_id = match["player_id"]
         if ladder_name in WHITELISTED_GAMES.keys():
-            content = { 'challenge_player_id': player_id,
-                        'match-id': match_id }
-
             opponent_username = match['username']
             opponent_country = match['country']
 
@@ -174,8 +179,7 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
                 continue
 
             if not builtins.debug_smashladder:
-                response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
-                                             content, cookie_jar)
+                response = challenge_opponent(cookie_jar, player_id, match_id)
             else:
                 print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
 
@@ -305,10 +309,7 @@ def process_new_search(cookie_jar, message, own_username):
                opponent_username not in BLACKLISTED_PLAYERS and \
                opponent_username != own_username:
                 if not builtins.debug_smashladder:
-                    content = { 'challenge_player_id': opponent_id,
-                                'match_id': match_id }
-                    response = http_post_request('https://www.smashladder.com/matchmaking/challenge_search',
-                                                 content, cookie_jar)
+                    response = challenge_opponent(cookie_jar, opponent_id, match_id)
                 else:
                     print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
 

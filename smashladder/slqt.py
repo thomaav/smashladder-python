@@ -129,7 +129,8 @@ class SocketThread(QThread):
 
 
     def on_error(self, ws, error):
-        print('[WS ERROR]: ' + error)
+        print('[WS ERROR]: ' + str(error))
+        print('[DEBUG]: Error in WebSocket, likely tried to close before setup done')
 
 
     def on_close(self, ws):

@@ -18,6 +18,7 @@ from PyQt5 import uic
 
 MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
+socket_lock = threading.Lock()
 
 
 def qt_print(text):
@@ -93,39 +94,40 @@ class SocketThread(QThread):
     entered_match = pyqtSignal(str)
 
     def on_message(self, ws, raw_message):
-        if '\"authentication\":false' in raw_message:
-            self.qt_print.emit('Authentication false, exiting')
-            self.ws.close()
+        with socket_lock:
+            if '\"authentication\":false' in raw_message:
+                self.qt_print.emit('Authentication false, exiting')
+                self.ws.close()
 
-        elif 'private_chat' in raw_message:
-            processed_message = sl.process_private_chat_message(raw_message)
-            self.qt_print.emit(processed_message['info'])
-
-        elif 'current_matches' in raw_message:
-            processed_message = sl.process_match_message(raw_message)
-
-            if 'Entered match' in processed_message['info']:
-                self.entered_match.emit(processed_message['match_id'])
-                return
-
-            if not processed_message['typing']:
+            elif 'private_chat' in raw_message:
+                processed_message = sl.process_private_chat_message(raw_message)
                 self.qt_print.emit(processed_message['info'])
 
-        elif 'open_challenges' in raw_message:
-            processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
-            if processed_message['match_id']:
-                self.qt_print.emit(processed_message['info'])
+            elif 'current_matches' in raw_message:
+                processed_message = sl.process_match_message(raw_message)
 
-            if 'Accepted challenge' in processed_message['info']:
-                self.entered_match.emit(processed_message['match_id'])
+                if 'Entered match' in processed_message['info']:
+                    self.entered_match.emit(processed_message['match_id'])
+                    return
 
-        elif 'searches' in raw_message:
-            if builtins.in_match:
-                return
+                if not processed_message['typing']:
+                    self.qt_print.emit(processed_message['info'])
 
-            player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
-            if player:
-                self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
+            elif 'open_challenges' in raw_message:
+                processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
+                if processed_message['match_id']:
+                    self.qt_print.emit(processed_message['info'])
+
+                if 'Accepted challenge' in processed_message['info']:
+                    self.entered_match.emit(processed_message['match_id'])
+
+            elif 'searches' in raw_message:
+                if builtins.in_match:
+                    return
+
+                player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
+                if player:
+                    self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
 
     def on_error(self, ws, error):
@@ -374,8 +376,9 @@ class MainWindow(QMainWindow):
 
         qt_print('Quitting matchmaking..')
 
-        self.socket_thread.ws.close()
-        self.socket_thread.wait()
+        with socket_lock:
+            self.socket_thread.ws.close()
+            self.socket_thread.wait()
 
         builtins.idle = True
         self.matchmaking_thread.wait()

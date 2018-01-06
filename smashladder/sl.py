@@ -87,6 +87,9 @@ def retrieve_active_searches(cookie_jar):
             if not opponent_uses_active_build(match):
                 continue
 
+            if match_is_doubles(match):
+                continue
+
             country = match['player1']['location']['country']['name']
             username = match['player1']['username']
             search_time_remaining = match['search_time_remaining']
@@ -315,6 +318,9 @@ def process_new_search(cookie_jar, message, own_username):
             if not opponent_uses_active_build(match_info):
                 break
 
+            if match_is_doubles(match_info):
+                break
+
             if opponent_country in WHITELISTED_COUNTRIES and \
                opponent_username not in BLACKLISTED_PLAYERS and \
                opponent_username != own_username:
@@ -353,3 +359,9 @@ def opponent_uses_active_build(match):
                 print(match['player1']['username'] + ' does not have preferred right')
                 return False
     return True
+
+
+def match_is_doubles(match):
+    if match['team_size'] == 2:
+        return True
+    return False

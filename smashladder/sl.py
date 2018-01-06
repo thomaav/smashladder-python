@@ -14,6 +14,10 @@ builtins.search_match_id = None
 builtins.idle = True
 
 
+current_fm_build = 'Faster Melee 5.8.7'
+melee_id = '2'
+
+
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                       title, ranked, host_code):
     """
@@ -79,6 +83,9 @@ def retrieve_active_searches(cookie_jar):
     for match_id in response_body['searches']:
         if (re.match('[0-9]{7,9}', match_id)):
             match = response_body['searches'][match_id]
+
+            if not opponent_uses_active_build(match):
+                continue
 
             country = match['player1']['location']['country']['name']
             username = match['player1']['username']
@@ -305,6 +312,9 @@ def process_new_search(cookie_jar, message, own_username):
             if match_info['is_ranked']:
                 break
 
+            if not opponent_uses_active_build(match_info):
+                break
+
             if opponent_country in WHITELISTED_COUNTRIES and \
                opponent_username not in BLACKLISTED_PLAYERS and \
                opponent_username != own_username:
@@ -313,7 +323,7 @@ def process_new_search(cookie_jar, message, own_username):
                 else:
                     print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
 
-    if 'content' in locals():
+    if 'response' in locals():
         return { 'username': opponent_username,
                  'country': opponent_country }
     else:
@@ -335,3 +345,11 @@ def finished_chatting_with_match(cookie_jar, match_id):
     builtins.current_match_id = None
     builtins.in_match = False
 
+
+def opponent_uses_active_build(match):
+    if melee_id in match['player1']['preferred_builds']:
+        for build in match['player1']['preferred_builds'][melee_id]:
+            if build['name'] == current_fm_build and build['active'] == False:
+                print(match['player1']['username'] + ' does not have preferred right')
+                return False
+    return True

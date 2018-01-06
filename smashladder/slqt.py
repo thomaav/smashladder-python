@@ -22,7 +22,7 @@ socket_lock = threading.Lock()
 
 
 def qt_print(text):
-    main_window.matchmaking_info.append(text)
+    main_window.matchmaking_info.append('| ' + text)
     QApplication.processEvents()
     main_window.repaint()
 

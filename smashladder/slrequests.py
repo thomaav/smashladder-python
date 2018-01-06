@@ -3,7 +3,7 @@ import requests
 import smashladder.slexceptions as slexceptions
 from getpass import getpass
 
-TIMEOUT = 5
+TIMEOUT = 2
 DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
 		    'accept-encoding': 'gzip, deflate, sdch',
 		    'accept-language': 'nb-NO,nb;q=0.8,no;q=0.6,nn;q=0.4,en-US;q=0.2,en;q=0.2',

@@ -10,11 +10,21 @@ class SlSocketThread(QThread):
     qt_print = pyqtSignal(str)
     entered_match = pyqtSignal(str)
 
-    def __init__(self, cookie_jar, parent=None):
+    def __init__(self, cookie_jar=None, parent=None):
         super(SlSocketThread, self).__init__(parent)
+        self.lock = threading.Lock()
+
+        if cookie_jar:
+            self.cookie_jar = cookie_jar
+            self.username = cookie_jar['username']
+        else:
+            self.cookie_jar = None
+
+
+    def set_login(self, cookie_jar):
         self.cookie_jar = cookie_jar
         self.username = cookie_jar['username']
-        self.lock = threading.Lock()
+
 
     def on_message(self, ws, raw_message):
         with self.lock:
@@ -73,6 +83,9 @@ class SlSocketThread(QThread):
 
 
     def run(self):
+        if not self.cookie_jar:
+            print('[DEBUG]: WebSocket: can\'t run without login')
+
         self.ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
                                          on_message = self.on_message,
                                          on_error = self.on_error,

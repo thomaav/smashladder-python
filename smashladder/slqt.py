@@ -186,8 +186,8 @@ class LoginWindow(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
+        self.init_threads()
         self.initUI()
-        self.threads_initiated = False
 
 
     def initUI(self):
@@ -257,12 +257,8 @@ class MainWindow(QMainWindow):
 
 
     def init_threads(self):
-        if 'username' not in self.cookie_jar or \
-           self.threads_initiated:
-            return
-
         self.matchmaking_thread = MMThread()
-        self.socket_thread = slsockthread.SlSocketThread(self.cookie_jar)
+        self.socket_thread = slsockthread.SlSocketThread()
         self.challenge_thread = ChallengeThread()
 
         self.matchmaking_thread.qt_print.connect(qt_print)
@@ -270,14 +266,13 @@ class MainWindow(QMainWindow):
         self.socket_thread.entered_match.connect(self.entered_match)
         self.challenge_thread.qt_print.connect(qt_print)
 
-        self.threads_initited = True
-
 
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
             local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.username = self.cookie_jar['username']
+            self.socket_thread.set_login(self.cookie_jar)
 
             self.relog_button.hide()
             self.logged_in_label.show()
@@ -310,8 +305,6 @@ class MainWindow(QMainWindow):
             qt_print('Already matchmaking, can\'t start matchmaking')
             return
 
-        if not self.threads_initiated:
-            self.init_threads()
 
         builtins.idle = False
         self.matchmaking_thread.start()

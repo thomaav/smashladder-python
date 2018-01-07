@@ -6,13 +6,11 @@ import smashladder.slexceptions as slexceptions
 from smashladder.local import cookie_jar_to_string
 from PyQt5.QtCore import QThread, pyqtSignal
 
-class SlSocketThread(QThread):
+class SlBaseThread(QThread):
     qt_print = pyqtSignal(str)
-    entered_match = pyqtSignal(str)
 
     def __init__(self, cookie_jar=None, parent=None):
-        super(SlSocketThread, self).__init__(parent)
-        self.lock = threading.Lock()
+        super().__init__(parent)
         if cookie_jar:
             self.cookie_jar = cookie_jar
             self.username = cookie_jar['username']
@@ -28,6 +26,14 @@ class SlSocketThread(QThread):
     def logout(self):
         self.cookie_jar = None
         self.username = None
+
+
+class SlSocketThread(SlBaseThread):
+    entered_match = pyqtSignal(str)
+
+    def __init__(self, cookie_jar=None, parent=None):
+        super().__init__(cookie_jar, parent)
+        self.lock = threading.Lock()
 
 
     def auth_false(self):

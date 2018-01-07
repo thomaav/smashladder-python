@@ -4,7 +4,7 @@ import smashladder.local as local
 import smashladder.sl as sl
 import smashladder.slrequests as slrequests
 import smashladder.slexceptions as slexceptions
-import smashladder.slsockthread as slsockthread
+import smashladder.slsockets as slsockets
 import os.path
 import time
 import enum
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
 
     def init_threads(self):
         self.matchmaking_thread = MMThread()
-        self.socket_thread = slsockthread.SlSocketThread()
+        self.socket_thread = slsockets.SlSocketThread()
         self.challenge_thread = ChallengeThread()
 
         self.matchmaking_thread.qt_print.connect(qt_print)

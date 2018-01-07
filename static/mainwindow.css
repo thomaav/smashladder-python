@@ -10,7 +10,7 @@ QLineEdit {
 QPushButton {
     background-color: rgb(58, 64, 89);
     color: white;
-    border-radius: 0;
+    /* border-radius: 0; */
 }
 
 QLabel {

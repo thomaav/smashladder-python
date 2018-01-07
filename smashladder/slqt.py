@@ -15,6 +15,7 @@ from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCurs
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
+
 MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
 
@@ -49,7 +50,7 @@ class MMStatus(enum.Enum):
 
 class LoginWindow(QWidget):
     def __init__(self, main_window, parent=None):
-        super(LoginWindow, self).__init__(parent)
+        super().__init__(parent)
         self.main_window = main_window
         self.initUI()
 
@@ -130,15 +131,13 @@ class LoginWindow(QWidget):
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+        super().__init__(parent)
         self.init_threads()
         self.initUI()
 
 
     def initUI(self):
         uic.loadUi(MAINWINDOW_UI_FILE, self)
-        # QToolTip.setFont(QFont('SansSerif', 10))
-        # self.setToolTip('This is a <b>QWidget</b> widget')
 
         self.center()
         self.setFixedSize(self.width(), self.height())
@@ -217,6 +216,7 @@ class MainWindow(QMainWindow):
             local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.username = self.cookie_jar['username']
+
             self.socket_thread.set_login(self.cookie_jar)
             self.matchmaking_thread.set_login(self.cookie_jar)
             self.challenge_thread.set_login(self.cookie_jar)
@@ -235,6 +235,7 @@ class MainWindow(QMainWindow):
             local.cookie_jar = None
             self.cookie_jar = None
             os.remove(local.COOKIE_FILE)
+
             self.socket_thread.logout()
             self.matchmaking_thread.logout()
             self.challenge_thread.logout()
@@ -254,7 +255,6 @@ class MainWindow(QMainWindow):
         if not builtins.idle:
             qt_print('Already matchmaking, can\'t start matchmaking')
             return
-
 
         builtins.idle = False
         self.matchmaking_thread.start()

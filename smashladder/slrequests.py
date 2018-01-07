@@ -14,7 +14,7 @@ DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q
 		    'origin': 'https://www.smashladder.com',
 		    'referrer': 'https://smashladder.com/log-in',
 		    'upgrade-insecure-requests' : '1',
-		    'user-agent': 'python',
+		    'user-agent': 'python: https://github.com/thomaav/smashladder-python',
 };
 
 

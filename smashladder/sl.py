@@ -27,7 +27,8 @@ def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
     match_count is 0, probably for ranked
     title i dont fucking know, use ''
     ranked, 0 or 1 accordingly
-    host_code is can be added if wanted, '' if none """
+    host_code is can be added if wanted, '' if none
+    """
 
     match_content = { 'team_size': team_size,
                       'game_id': game_id,

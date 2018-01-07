@@ -2,6 +2,11 @@ import pickle
 import os.path
 
 
+COOKIE_FILE = 'conf/cookies.dat'
+WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
+BLACKLISTED_PLAYERS_FILE = 'conf/blacklisted_players'
+
+
 def save_cookies_to_file(cookie_jar, filename):
     with open(filename, 'wb') as f:
         pickle.dump(cookie_jar, f)
@@ -19,10 +24,6 @@ def cookie_jar_to_string(cookie_jar):
     cookie += 'lad_sock_remember_me=' + cookie_jar['lad_sock_remember_me'] + '; '
     return cookie
 
-
-COOKIE_FILE = 'conf/cookies.dat'
-WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
-BLACKLISTED_PLAYERS_FILE = 'conf/blacklisted_players'
 
 if os.path.isfile(WHITELISTED_COUNTRIES_FILE):
     with open(WHITELISTED_COUNTRIES_FILE, 'rb') as f:

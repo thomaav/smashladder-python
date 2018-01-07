@@ -356,7 +356,6 @@ def opponent_uses_active_build(match):
     if melee_id in match['player1']['preferred_builds']:
         for build in match['player1']['preferred_builds'][melee_id]:
             if build['name'] == current_fm_build and build['active'] == False:
-                print(match['player1']['username'] + ' does not have preferred right')
                 return False
     return True
 

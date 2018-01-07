@@ -4,11 +4,10 @@ import smashladder.local as local
 import smashladder.sl as sl
 import smashladder.slrequests as slrequests
 import smashladder.slexceptions as slexceptions
-import threading
+import smashladder.slsockthread as slsockthread
 import os.path
 import time
 import enum
-import websocket
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
@@ -18,7 +17,6 @@ from PyQt5 import uic
 
 MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
-socket_lock = threading.Lock()
 
 
 def qt_print(text):
@@ -88,75 +86,6 @@ class MMThread(QThread):
                     builtins.search_match_id = mm_status['match_id']
 
                 time.sleep(1)
-
-
-class SocketThread(QThread):
-    qt_print = pyqtSignal(str)
-    entered_match = pyqtSignal(str)
-
-    def on_message(self, ws, raw_message):
-        with socket_lock:
-            if '\"authentication\":false' in raw_message:
-                self.qt_print.emit('Authentication false, exiting')
-                self.ws.close()
-
-            elif 'private_chat' in raw_message:
-                processed_message = sl.process_private_chat_message(raw_message)
-                self.qt_print.emit(processed_message['info'])
-
-            elif 'current_matches' in raw_message:
-                processed_message = sl.process_match_message(raw_message)
-
-                if 'Entered match' in processed_message['info']:
-                    self.entered_match.emit(processed_message['match_id'])
-                    return
-
-                if not processed_message['typing']:
-                    self.qt_print.emit(processed_message['info'])
-
-            elif 'open_challenges' in raw_message:
-                try:
-                    processed_message = sl.process_open_challenges(local.cookie_jar, raw_message)
-                except slexceptions.RequestTimeoutException as e:
-                    self.qt_print.emit(str(e))
-                    return
-
-                if processed_message['match_id']:
-                    self.qt_print.emit(processed_message['info'])
-
-                if 'Accepted challenge' in processed_message['info']:
-                    self.entered_match.emit(processed_message['match_id'])
-
-            elif 'searches' in raw_message:
-                if builtins.in_match:
-                    return
-
-                try:
-                    player = sl.process_new_search(local.cookie_jar, raw_message, main_window.username)
-                except slexceptions.RequestTimeoutException as e:
-                    self.qt_print.emit(str(e))
-                    return
-
-                if player:
-                    self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
-
-
-    def on_error(self, ws, error):
-        print('[WS ERROR]: ' + str(error))
-        print('[DEBUG]: Error in WebSocket, likely tried to close before setup done')
-
-
-    def on_close(self, ws):
-        pass
-
-
-    def run(self):
-        self.ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
-                                         on_message = self.on_message,
-                                         on_error = self.on_error,
-                                         on_close = self.on_close,
-                                         cookie = local.cookie_jar_to_string(local.cookie_jar))
-        self.ws.run_forever()
 
 
 class ChallengeThread(QThread):
@@ -258,7 +187,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.initUI()
-        self.init_threads()
+        self.threads_initiated = False
 
 
     def initUI(self):
@@ -328,15 +257,20 @@ class MainWindow(QMainWindow):
 
 
     def init_threads(self):
+        if 'username' not in self.cookie_jar or \
+           self.threads_initiated:
+            return
+
         self.matchmaking_thread = MMThread()
-        self.socket_thread = SocketThread()
+        self.socket_thread = slsockthread.SlSocketThread(self.cookie_jar)
         self.challenge_thread = ChallengeThread()
 
         self.matchmaking_thread.qt_print.connect(qt_print)
         self.socket_thread.qt_print.connect(qt_print)
+        self.socket_thread.entered_match.connect(self.entered_match)
         self.challenge_thread.qt_print.connect(qt_print)
 
-        self.socket_thread.entered_match.connect(self.entered_match)
+        self.threads_initited = True
 
 
     def login(self):
@@ -376,6 +310,9 @@ class MainWindow(QMainWindow):
             qt_print('Already matchmaking, can\'t start matchmaking')
             return
 
+        if not self.threads_initiated:
+            self.init_threads()
+
         builtins.idle = False
         self.matchmaking_thread.start()
         self.socket_thread.start()
@@ -392,7 +329,7 @@ class MainWindow(QMainWindow):
 
         qt_print('Quitting matchmaking..')
 
-        with socket_lock:
+        with self.socket_thread.lock:
             self.socket_thread.ws.close()
             self.socket_thread.wait()
 

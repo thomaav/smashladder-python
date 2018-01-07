@@ -1,5 +1,6 @@
 import builtins
 import threading
+import time
 import websocket
 import smashladder.sl as sl
 import smashladder.slexceptions as slexceptions
@@ -112,7 +113,8 @@ class SlSocketThread(SlBaseThread):
 
     def run(self):
         if not self.cookie_jar:
-            print('[DEBUG]: WebSocket: can\'t run without login')
+            print('[DEBUG]: SocketThread: can\'t run without login')
+            return
 
         self.ws = websocket.WebSocketApp('wss://www.smashladder.com/?type=1&version=9.11.4',
                                          on_message = self.on_message,
@@ -120,3 +122,70 @@ class SlSocketThread(SlBaseThread):
                                          on_close = self.on_close,
                                          cookie = cookie_jar_to_string(self.cookie_jar))
         self.ws.run_forever()
+
+
+class MMThread(SlBaseThread):
+    secs_queued = 0
+
+    def __init__(self, cookie_jar=None, parent=None):
+        super().__init__(parent)
+
+
+    def run(self):
+        if not self.cookie_jar:
+            print('[DEBUG]: MMThread: can\'t run without login')
+            return
+
+        while True:
+            if builtins.debug_smashladder:
+                print('[DEBUG]: Would start matchmaking search')
+                break
+
+            if builtins.in_match or builtins.idle:
+                break
+
+            if builtins.in_queue:
+                self.secs_queued += 1
+                if self.secs_queued > 305:
+                    self.secs_queued = 0
+                    builtins.in_queue = False
+                    builtins.search_match_id = None
+                time.sleep(1)
+                continue
+            else:
+                try:
+                    mm_status = sl.begin_matchmaking(self.cookie_jar, 1, 2, 0, '', 0, '')
+                except slexceptions.RequestTimeoutException as e:
+                    self.qt_print.emit(str(e))
+                    break
+
+                if 'Already in queue' in mm_status['info']:
+                    builtins.in_queue = True
+                    continue
+
+                self.qt_print.emit(mm_status['info'])
+
+                if mm_status['match_id']:
+                    builtins.in_queue = True
+                    builtins.search_match_id = mm_status['match_id']
+
+                time.sleep(1)
+
+
+class ChallengeThread(SlBaseThread):
+    def __init__(self, cookie_jar=None, parent=None):
+        super().__init__(parent)
+
+    def run(self):
+        if not self.cookie_jar:
+            print('[DEBUG]: ChallengeThread: can\'t run without login')
+            return
+
+        try:
+            challenged_players = sl.challenge_relevant_friendlies(self.cookie_jar, self.username)
+        except slexceptions.RequestTimeoutException as e:
+            self.qt_print.emit(str(e))
+            return
+
+        for player in challenged_players:
+            self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])

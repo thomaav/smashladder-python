@@ -4,7 +4,7 @@ import smashladder.local as local
 import smashladder.sl as sl
 import smashladder.slrequests as slrequests
 import smashladder.slexceptions as slexceptions
-import smashladder.slsockets as slsockets
+import smashladder.slthreads as slthreads
 import os.path
 import time
 import enum
@@ -45,61 +45,6 @@ class MMStatus(enum.Enum):
     IDLE = 1
     IN_QUEUE = 2
     IN_MATCH = 3
-
-
-class MMThread(QThread):
-    qt_print = pyqtSignal(str)
-    secs_queued = 0
-
-    def run(self):
-        while True:
-            if builtins.debug_smashladder:
-                print('[DEBUG]: Would start matchmaking search')
-                break
-
-            if builtins.in_match or builtins.idle:
-                break
-
-            if builtins.in_queue:
-                self.secs_queued += 1
-                if self.secs_queued > 305:
-                    self.secs_queued = 0
-                    builtins.in_queue = False
-                    builtins.search_match_id = None
-                time.sleep(1)
-                continue
-            else:
-                try:
-                    mm_status = sl.begin_matchmaking(main_window.cookie_jar, 1, 2, 0, '', 0, '')
-                except slexceptions.RequestTimeoutException as e:
-                    self.qt_print.emit(str(e))
-                    break
-
-                if 'Already in queue' in mm_status['info']:
-                    builtins.in_queue = True
-                    continue
-
-                self.qt_print.emit(mm_status['info'])
-
-                if mm_status['match_id']:
-                    builtins.in_queue = True
-                    builtins.search_match_id = mm_status['match_id']
-
-                time.sleep(1)
-
-
-class ChallengeThread(QThread):
-    qt_print = pyqtSignal(str)
-
-    def run(self):
-        try:
-            challenged_players = sl.challenge_relevant_friendlies(local.cookie_jar, main_window.username)
-        except slexceptions.RequestTimeoutException as e:
-            self.qt_print.emit(str(e))
-            return
-
-        for player in challenged_players:
-            self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
 
 class LoginWindow(QWidget):
@@ -257,9 +202,9 @@ class MainWindow(QMainWindow):
 
 
     def init_threads(self):
-        self.matchmaking_thread = MMThread()
-        self.socket_thread = slsockets.SlSocketThread()
-        self.challenge_thread = ChallengeThread()
+        self.matchmaking_thread = slthreads.MMThread()
+        self.socket_thread = slthreads.SlSocketThread()
+        self.challenge_thread = slthreads.ChallengeThread()
 
         self.matchmaking_thread.qt_print.connect(qt_print)
         self.socket_thread.qt_print.connect(qt_print)
@@ -273,6 +218,8 @@ class MainWindow(QMainWindow):
             self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.username = self.cookie_jar['username']
             self.socket_thread.set_login(self.cookie_jar)
+            self.matchmaking_thread.set_login(self.cookie_jar)
+            self.challenge_thread.set_login(self.cookie_jar)
 
             self.relog_button.hide()
             self.logged_in_label.show()
@@ -289,6 +236,8 @@ class MainWindow(QMainWindow):
             self.cookie_jar = None
             os.remove(local.COOKIE_FILE)
             self.socket_thread.logout()
+            self.matchmaking_thread.logout()
+            self.challenge_thread.logout()
 
             self.relog_button.show()
             self.logged_in_label.hide()

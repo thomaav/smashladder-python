@@ -26,6 +26,11 @@ class SlSocketThread(QThread):
         self.username = cookie_jar['username']
 
 
+    def logout(self):
+        self.cookie_jar = None
+        self.username = None
+
+
     def on_message(self, ws, raw_message):
         with self.lock:
             if '\"authentication\":false' in raw_message:

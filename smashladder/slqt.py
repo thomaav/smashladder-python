@@ -288,6 +288,7 @@ class MainWindow(QMainWindow):
             local.cookie_jar = None
             self.cookie_jar = None
             os.remove(local.COOKIE_FILE)
+            self.socket_thread.logout()
 
             self.relog_button.show()
             self.logged_in_label.hide()

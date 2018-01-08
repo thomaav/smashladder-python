@@ -21,14 +21,18 @@ DEFAULT_HEADERS = { 'accept': 'text/html,application/xhtml+xml,application/xml;q
 def http_get_request(url, cookie_jar={}, headers=DEFAULT_HEADERS):
     try:
         return requests.get(url, cookies=cookie_jar, data=headers, timeout=TIMEOUT)
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+    except (requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectTimeout,
+            requests.exceptions.ConnectionError):
         raise slexceptions.RequestTimeoutException('HTTP get request to ' + url + ' timed out')
 
 
 def http_post_request(url, data, cookie_jar={}, headers=DEFAULT_HEADERS):
     try:
         return requests.post(url, data=data, cookies=cookie_jar, headers=headers, timeout=TIMEOUT)
-    except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
+    except (requests.exceptions.ReadTimeout,
+            requests.exceptions.ConnectTimeout,
+            requests.exceptions.ConnectionError):
         raise slexceptions.RequestTimeoutException('HTTP post request to ' + url + ' timed out')
 
 

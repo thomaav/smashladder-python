@@ -369,3 +369,11 @@ def match_is_doubles(match):
     if match['team_size'] == 2:
         return True
     return False
+
+
+def send_match_chat_message(cookie_jar, match_id, message):
+    content = { 'match_id': match_id,
+                'message': message,
+                'send_id': 20 }
+    response = http_post_request('https://www.smashladder.com/matchmaking/send_chat',
+                                 content, cookie_jar)

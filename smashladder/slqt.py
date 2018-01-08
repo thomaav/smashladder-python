@@ -8,6 +8,7 @@ import smashladder.slthreads as slthreads
 import os.path
 import time
 import enum
+import threading
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
@@ -18,6 +19,7 @@ from PyQt5 import uic
 
 MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
+MATCH_UI_FILE = 'static/match.ui'
 
 
 def qt_print(text):
@@ -46,6 +48,43 @@ class MMStatus(enum.Enum):
     IDLE = 1
     IN_QUEUE = 2
     IN_MATCH = 3
+
+
+class MatchWindow(QWidget):
+    def __init__(self, main_window, parent=None):
+        super().__init__(parent)
+        self.main_window = main_window
+        self.initUI()
+
+
+    def initUI(self):
+        uic.loadUi(MATCH_UI_FILE, self)
+
+        self.setWindowTitle('Match chat')
+        self.setFixedSize(self.width(), self.height())
+        self.setObjectName('MatchWidget')
+        self.setWindowFlags(Qt.FramelessWindowHint)
+
+        with open(MAINWINDOW_CSS_FILE) as f:
+            self.setStyleSheet(f.read())
+
+
+    def print(self, text):
+        self.match_info.append('| ' + text)
+
+
+    def clear(self):
+        self.match_info.clear()
+
+
+    def send_message(self):
+        message = self.match_input.text()
+        if message and builtins.in_match:
+            def async_message():
+                sl.send_match_chat_message(main_window.cookie_jar, builtins.current_match_id, message)
+            thr = threading.Thread(target=async_message, args=(), kwargs={})
+            thr.start()
+            self.match_input.setText('')
 
 
 class LoginWindow(QWidget):
@@ -193,11 +232,15 @@ class MainWindow(QMainWindow):
         self.show()
 
         # we want the creation of the main window to be _done_ before
-        # we create the login window
+        # we create the login window and match window
         self.login_window = LoginWindow(self)
         self.relog_button.clicked.connect(lambda: self.login_window.show())
         self.logout_button.clicked.connect(self.logout)
         self.login()
+
+        self.match_window = MatchWindow(self)
+        self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
+        self.socket_thread.match_message.connect(self.match_window.print)
 
 
     def init_threads(self):
@@ -295,6 +338,8 @@ class MainWindow(QMainWindow):
         builtins.in_match = False
         builtins.idle = True
         qt_change_status(MMStatus.IDLE)
+        self.match_window.hide()
+        self.match_window.clear()
         qt_print('Successfully quit matchmaking')
 
 
@@ -312,6 +357,7 @@ class MainWindow(QMainWindow):
 
         qt_print('Entered match: ' + match_id)
         qt_change_status(MMStatus.IN_MATCH)
+        self.match_window.show()
 
 
     def center(self):

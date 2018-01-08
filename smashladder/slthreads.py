@@ -31,6 +31,7 @@ class SlBaseThread(QThread):
 
 class SlSocketThread(SlBaseThread):
     entered_match = pyqtSignal(str)
+    match_message = pyqtSignal(str)
 
     def __init__(self, cookie_jar=None, parent=None):
         super().__init__(cookie_jar, parent)
@@ -55,6 +56,7 @@ class SlSocketThread(SlBaseThread):
 
         if not processed_message['typing']:
             self.qt_print.emit(processed_message['info'])
+            self.match_message.emit(processed_message['info'].replace('[match chat] ', ''))
 
 
     def process_open_challenges(self, raw_message):

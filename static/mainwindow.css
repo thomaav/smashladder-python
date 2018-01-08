@@ -1,4 +1,6 @@
-#MainWidget, #LoginWidget {
+#MainWidget,
+#LoginWidget,
+#MatchWidget {
     background-color: rgb(28, 31, 43);
 }
 

@@ -109,6 +109,13 @@ def retrieve_active_searches(cookie_jar):
     return active_searches
 
 
+def player_relevant(country, username):
+    if country.lower() in [c.lower() for c in WHITELISTED_COUNTRIES] \
+       and username.lower() not in [p.lower() for p in BLACKLISTED_PLAYERS]:
+        return True
+    return False
+
+
 def retrieve_relevant_searches(cookie_jar):
     active_searches = retrieve_active_searches(cookie_jar)
 
@@ -116,8 +123,7 @@ def retrieve_relevant_searches(cookie_jar):
     for match_id in active_searches:
         country = active_searches[match_id]['country']
         username = active_searches[match_id]['username']
-        if country in WHITELISTED_COUNTRIES \
-           and username not in BLACKLISTED_PLAYERS:
+        if player_relevant(country, username):
             relevant_searches[match_id] = active_searches[match_id]
 
     return relevant_searches
@@ -281,8 +287,7 @@ def process_open_challenges(cookie_jar, message):
             opponent_country.append(challenge_info['player2']['location']['country']['name'])
 
     for i, country in enumerate(opponent_country):
-        if country in WHITELISTED_COUNTRIES \
-           and opponent_username[i] not in BLACKLISTED_PLAYERS:
+        if player_relevant(country, opponent_username[i]):
             if not builtins.debug_smashladder:
                 accept_match_challenge(cookie_jar, match_ids[i])
             else:
@@ -322,8 +327,7 @@ def process_new_search(cookie_jar, message, own_username):
             if match_is_doubles(match_info):
                 break
 
-            if opponent_country in WHITELISTED_COUNTRIES and \
-               opponent_username not in BLACKLISTED_PLAYERS and \
+            if player_relevant(opponent_country, opponent_username) and \
                opponent_username != own_username:
                 if not builtins.debug_smashladder:
                     response = challenge_opponent(cookie_jar, opponent_id, match_id)

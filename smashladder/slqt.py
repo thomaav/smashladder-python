@@ -68,6 +68,11 @@ class MatchWindow(QWidget):
         with open(MAINWINDOW_CSS_FILE) as f:
             self.setStyleSheet(f.read())
 
+        self.mpressed = False
+        self.mousePressEvent = (self.mouse_press)
+        self.mouseReleaseEvent = (self.mouse_release)
+        self.mouseMoveEvent = (self.mouse_move)
+
 
     def print(self, text):
         self.match_info.append('| ' + text)
@@ -85,6 +90,32 @@ class MatchWindow(QWidget):
             thr = threading.Thread(target=async_message, args=(), kwargs={})
             thr.start()
             self.match_input.setText('')
+
+    def mouse_press(self, evt):
+        cursor = QCursor()
+        pos = cursor.pos()
+        geometry = self.geometry()
+
+        self.mpress_cur_x = pos.x()
+        self.mpress_cur_y = pos.y()
+        self.mpress_x = geometry.x()
+        self.mpress_y = geometry.y()
+        self.mpressed = True
+
+
+    def mouse_release(self, evt):
+        self.mpressed = False
+
+
+    def mouse_move(self, evt):
+        if self.mpressed:
+            cursor = QCursor()
+            pos = cursor.pos()
+
+            diff_x = pos.x() - self.mpress_cur_x
+            diff_y = pos.y() - self.mpress_cur_y
+
+            self.move(self.mpress_x + diff_x, self.mpress_y + diff_y)
 
 
 class LoginWindow(QWidget):

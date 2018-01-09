@@ -50,46 +50,13 @@ class MMStatus(enum.Enum):
     IN_MATCH = 3
 
 
-class MatchWindow(QWidget):
-    def __init__(self, main_window, parent=None):
+class MovableQWidget(QWidget):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.main_window = main_window
-        self.initUI()
-
-
-    def initUI(self):
-        uic.loadUi(MATCH_UI_FILE, self)
-
-        self.setWindowTitle('Match chat')
-        self.setFixedSize(self.width(), self.height())
-        self.setObjectName('MatchWidget')
-        self.setWindowFlags(Qt.FramelessWindowHint)
-
-        with open(MAINWINDOW_CSS_FILE) as f:
-            self.setStyleSheet(f.read())
-
         self.mpressed = False
         self.mousePressEvent = (self.mouse_press)
         self.mouseReleaseEvent = (self.mouse_release)
         self.mouseMoveEvent = (self.mouse_move)
-
-
-    def print(self, text):
-        self.match_info.append('| ' + text)
-
-
-    def clear(self):
-        self.match_info.clear()
-
-
-    def send_message(self):
-        message = self.match_input.text()
-        if message and builtins.in_match:
-            def async_message():
-                sl.send_match_chat_message(main_window.cookie_jar, builtins.current_match_id, message)
-            thr = threading.Thread(target=async_message, args=(), kwargs={})
-            thr.start()
-            self.match_input.setText('')
 
     def mouse_press(self, evt):
         cursor = QCursor()
@@ -116,6 +83,43 @@ class MatchWindow(QWidget):
             diff_y = pos.y() - self.mpress_cur_y
 
             self.move(self.mpress_x + diff_x, self.mpress_y + diff_y)
+
+
+class MatchWindow(MovableQWidget):
+    def __init__(self, main_window, parent=None):
+        super().__init__(parent)
+        self.main_window = main_window
+        self.initUI()
+
+
+    def initUI(self):
+        uic.loadUi(MATCH_UI_FILE, self)
+
+        self.setWindowTitle('Match chat')
+        self.setFixedSize(self.width(), self.height())
+        self.setObjectName('MatchWidget')
+        self.setWindowFlags(Qt.FramelessWindowHint)
+
+        with open(MAINWINDOW_CSS_FILE) as f:
+            self.setStyleSheet(f.read())
+
+
+    def print(self, text):
+        self.match_info.append('| ' + text)
+
+
+    def clear(self):
+        self.match_info.clear()
+
+
+    def send_message(self):
+        message = self.match_input.text()
+        if message and builtins.in_match:
+            def async_message():
+                sl.send_match_chat_message(main_window.cookie_jar, builtins.current_match_id, message)
+            thr = threading.Thread(target=async_message, args=(), kwargs={})
+            thr.start()
+            self.match_input.setText('')
 
 
 class LoginWindow(QWidget):
@@ -203,7 +207,7 @@ class LoginWindow(QWidget):
             self.login_status.setText('Login to server timed out, try again later')
 
 
-class MainWindow(QMainWindow):
+class MainWindow(MovableQWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.init_threads()
@@ -259,11 +263,6 @@ class MainWindow(QMainWindow):
         self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
 
-        self.mpressed = False
-        self.mousePressEvent = (self.mouse_press)
-        self.mouseReleaseEvent = (self.mouse_release)
-        self.mouseMoveEvent = (self.mouse_move)
-
         self.friendlies_checkbox.setChecked(True)
         self.friendlies_checkbox.toggled.connect(self.change_checkbox_config)
         sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
@@ -287,6 +286,7 @@ class MainWindow(QMainWindow):
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print)
         self.match_window.quit_match_button.clicked.connect(self.quit_matchmaking)
+        self.match_window.show()
 
 
     def init_threads(self):
@@ -503,33 +503,6 @@ class MainWindow(QMainWindow):
             self.config_info.append(country)
 
         self.config_info.verticalScrollBar().setValue(0)
-
-
-    def mouse_press(self, evt):
-        cursor = QCursor()
-        pos = cursor.pos()
-        geometry = self.geometry()
-
-        self.mpress_cur_x = pos.x()
-        self.mpress_cur_y = pos.y()
-        self.mpress_x = geometry.x()
-        self.mpress_y = geometry.y()
-        self.mpressed = True
-
-
-    def mouse_release(self, evt):
-        self.mpressed = False
-
-
-    def mouse_move(self, evt):
-        if self.mpressed:
-            cursor = QCursor()
-            pos = cursor.pos()
-
-            diff_x = pos.x() - self.mpress_cur_x
-            diff_y = pos.y() - self.mpress_cur_y
-
-            self.move(self.mpress_x + diff_x, self.mpress_y + diff_y)
 
 
 app = QApplication(sys.argv)

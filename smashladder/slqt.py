@@ -159,13 +159,17 @@ class LoginWindow(QWidget):
         QApplication.processEvents()
         self.repaint()
 
-        if slrequests.login_to_smashladder(username, password):
-            self.main_window.login()
-            self.main_window.username = username
-            self.login_status.hide()
-            self.close()
-        else:
-            self.login_status.setText('Wrong username and/or password')
+        try:
+            if slrequests.login_to_smashladder(username, password):
+                self.main_window.login()
+                self.main_window.username = username
+                self.login_status.hide()
+                self.close()
+            else:
+                self.login_status.setText('Wrong username and/or password')
+        except slexceptions.RequestTimeoutException as e:
+            main_window.qt_print(str(e))
+            self.login_status.setText('Login to server timed out, try again later')
 
 
 class MainWindow(QMainWindow):

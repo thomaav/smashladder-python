@@ -89,11 +89,12 @@ class SlSocketThread(SlBaseThread):
 
     def on_message(self, ws, raw_message):
         with self.lock:
-            if builtins.in_queue:
-                if '\"authentication\":false' in raw_message:
-                    self.auth_false()
+            if '\"authentication\":false' in raw_message:
+                self.auth_false()
+                return
 
-                elif 'current_matches' in raw_message:
+            if builtins.in_queue:
+                if 'current_matches' in raw_message:
                     self.process_match_message(raw_message)
 
                 elif 'open_challenges' in raw_message:
@@ -101,6 +102,11 @@ class SlSocketThread(SlBaseThread):
 
                 elif 'searches' in raw_message:
                     self.process_new_search(raw_message)
+
+            # we need to redo current_matches here, as it appears both
+            # when entering match, and when receiving a match message
+            if builtins.in_match and 'current_matches' in raw_message:
+                self.process_match_message(raw_message)
 
             if 'private_chat' in raw_message and self.priv_chat_enabled:
                 self.process_private_chat_message(raw_message)

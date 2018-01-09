@@ -18,6 +18,7 @@ current_fm_build = 'Faster Melee 5.8.7'
 melee_id = '2'
 ranked_enabled = False
 friendlies_enabled = True
+doubles_enabled = False
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -90,7 +91,8 @@ def retrieve_active_searches(cookie_jar):
             if not opponent_uses_active_build(match):
                 continue
 
-            if match_is_doubles(match):
+            if match_is_doubles(match) and \
+               not doubles_enabled:
                 continue
 
             country = match['player1']['location']['country']['name']
@@ -327,7 +329,8 @@ def process_new_search(cookie_jar, message, own_username):
             if not opponent_uses_active_build(match_info):
                 break
 
-            if match_is_doubles(match_info):
+            if match_is_doubles(match_info) and \
+               not doubles_enabled:
                 break
 
             if player_relevant(opponent_country, opponent_username) and \

@@ -230,11 +230,14 @@ class MainWindow(QMainWindow):
         self.mouseMoveEvent = (self.mouse_move)
 
         self.friendlies_checkbox.setChecked(True)
-        self.friendlies_checkbox.toggled.connect(self.change_ranked_friendlies_config)
-        self.ranked_checkbox.setChecked(False)
-        self.ranked_checkbox.toggled.connect(self.change_ranked_friendlies_config)
+        self.friendlies_checkbox.toggled.connect(self.change_checkbox_config)
         sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
+        self.ranked_checkbox.setChecked(False)
+        self.ranked_checkbox.toggled.connect(self.change_checkbox_config)
         sl.ranked_enabled = self.ranked_checkbox.isChecked()
+        self.doubles_checkbox.setChecked(False)
+        self.doubles_checkbox.toggled.connect(self.change_checkbox_config)
+        sl.doubles_enabled = self.doubles_checkbox.isChecked()
 
         self.show()
 
@@ -375,9 +378,10 @@ class MainWindow(QMainWindow):
         self.move(qr.topLeft())
 
 
-    def change_ranked_friendlies_config(self):
+    def change_checkbox_config(self):
         sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
         sl.ranked_enabled = self.ranked_checkbox.isChecked()
+        sl.doubles_enabled = self.doubles_checkbox.isChecked()
 
 
     def whitelist_country_wrapper(self):

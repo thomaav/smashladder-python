@@ -50,5 +50,5 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:checked {
-    background-color: lightgreen;
+    background-color: green;
 }

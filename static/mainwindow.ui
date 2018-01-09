@@ -320,14 +320,27 @@
    <widget class="QCheckBox" name="doubles_checkbox">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>480</x>
       <y>80</y>
-      <width>88</width>
+      <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>Doubles</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="priv_chat_checkbox">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>110</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Private chat</string>
     </property>
    </widget>
   </widget>

@@ -36,6 +36,7 @@ class SlSocketThread(SlBaseThread):
     def __init__(self, cookie_jar=None, parent=None):
         super().__init__(cookie_jar, parent)
         self.lock = threading.Lock()
+        self.priv_chat_enabled = True
 
 
     def auth_false(self):
@@ -88,20 +89,21 @@ class SlSocketThread(SlBaseThread):
 
     def on_message(self, ws, raw_message):
         with self.lock:
-            if '\"authentication\":false' in raw_message:
-                self.auth_false()
+            if builtins.in_queue:
+                if '\"authentication\":false' in raw_message:
+                    self.auth_false()
 
-            elif 'private_chat' in raw_message:
+                elif 'current_matches' in raw_message:
+                    self.process_match_message(raw_message)
+
+                elif 'open_challenges' in raw_message:
+                    self.process_open_challenges(raw_message)
+
+                elif 'searches' in raw_message:
+                    self.process_new_search(raw_message)
+
+            if 'private_chat' in raw_message and self.priv_chat_enabled:
                 self.process_private_chat_message(raw_message)
-
-            elif 'current_matches' in raw_message:
-                self.process_match_message(raw_message)
-
-            elif 'open_challenges' in raw_message:
-                self.process_open_challenges(raw_message)
-
-            elif 'searches' in raw_message:
-                self.process_new_search(raw_message)
 
 
     def on_error(self, ws, error):

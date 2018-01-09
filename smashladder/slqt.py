@@ -203,7 +203,7 @@ class LoginWindow(QWidget):
             else:
                 self.login_status.setText('Wrong username and/or password')
         except slexceptions.RequestTimeoutException as e:
-            main_window.qt_print(str(e))
+            qt_print(str(e))
             self.login_status.setText('Login to server timed out, try again later')
 
 
@@ -272,6 +272,8 @@ class MainWindow(MovableQWidget):
         self.doubles_checkbox.setChecked(False)
         self.doubles_checkbox.toggled.connect(self.change_checkbox_config)
         sl.doubles_enabled = self.doubles_checkbox.isChecked()
+        self.priv_chat_checkbox.setChecked(True)
+        self.priv_chat_checkbox.toggled.connect(self.change_checkbox_config)
 
         self.show()
 
@@ -286,7 +288,6 @@ class MainWindow(MovableQWidget):
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print)
         self.match_window.quit_match_button.clicked.connect(self.quit_matchmaking)
-        self.match_window.show()
 
 
     def init_threads(self):
@@ -309,6 +310,8 @@ class MainWindow(MovableQWidget):
             self.socket_thread.set_login(self.cookie_jar)
             self.matchmaking_thread.set_login(self.cookie_jar)
             self.challenge_thread.set_login(self.cookie_jar)
+
+            self.socket_thread.start()
 
             self.relog_button.hide()
             self.logged_in_label.show()
@@ -347,7 +350,6 @@ class MainWindow(MovableQWidget):
 
         builtins.idle = False
         self.matchmaking_thread.start()
-        self.socket_thread.start()
         self.challenge_thread.start()
 
         qt_change_status(MMStatus.IN_QUEUE)
@@ -360,10 +362,6 @@ class MainWindow(MovableQWidget):
             return
 
         qt_print('Quitting matchmaking..')
-
-        with self.socket_thread.lock:
-            self.socket_thread.ws.close()
-            self.socket_thread.wait()
 
         builtins.idle = True
         self.matchmaking_thread.wait()
@@ -417,6 +415,7 @@ class MainWindow(MovableQWidget):
         sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
         sl.ranked_enabled = self.ranked_checkbox.isChecked()
         sl.doubles_enabled = self.doubles_checkbox.isChecked()
+        self.socket_thread.priv_chat_enabled = self.priv_chat_checkbox.isChecked()
 
 
     def whitelist_country_wrapper(self):

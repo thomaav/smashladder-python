@@ -320,7 +320,7 @@
    <widget class="QCheckBox" name="doubles_checkbox">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>520</x>
       <y>80</y>
       <width>88</width>
       <height>21</height>

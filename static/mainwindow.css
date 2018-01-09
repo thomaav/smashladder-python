@@ -38,3 +38,17 @@ QScrollBar::sub-line {
     border: none;
     background: none;
 }
+
+QCheckBox {
+    color: white;
+    spacing: 7px;
+}
+
+QCheckBox::indicator {
+    background-color: rgb(18, 20, 28);
+    border: 2px solid white;
+}
+
+QCheckBox::indicator:checked {
+    background-color: lightgreen;
+}

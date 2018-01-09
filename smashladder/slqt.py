@@ -229,6 +229,13 @@ class MainWindow(QMainWindow):
         self.mouseReleaseEvent = (self.mouse_release)
         self.mouseMoveEvent = (self.mouse_move)
 
+        self.friendlies_checkbox.setChecked(True)
+        self.friendlies_checkbox.toggled.connect(self.change_ranked_friendlies_config)
+        self.ranked_checkbox.setChecked(False)
+        self.ranked_checkbox.toggled.connect(self.change_ranked_friendlies_config)
+        sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
+        sl.ranked_enabled = self.ranked_checkbox.isChecked()
+
         self.show()
 
         # we want the creation of the main window to be _done_ before
@@ -366,6 +373,11 @@ class MainWindow(QMainWindow):
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+
+    def change_ranked_friendlies_config(self):
+        sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
+        sl.ranked_enabled = self.ranked_checkbox.isChecked()
 
 
     def whitelist_country_wrapper(self):

@@ -16,6 +16,8 @@ builtins.idle = True
 
 current_fm_build = 'Faster Melee 5.8.7'
 melee_id = '2'
+ranked_enabled = False
+friendlies_enabled = True
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -192,7 +194,7 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
                opponent_username in ignored_users:
                 continue
 
-            if match['is_ranked']:
+            if not match_relevant(match):
                 continue
 
             if not builtins.debug_smashladder:
@@ -287,7 +289,8 @@ def process_open_challenges(cookie_jar, message):
             opponent_country.append(challenge_info['player2']['location']['country']['name'])
 
     for i, country in enumerate(opponent_country):
-        if player_relevant(country, opponent_username[i]):
+        if player_relevant(country, opponent_username[i]) and \
+           match_relevant(is_ranked=is_ranked[i]):
             if not builtins.debug_smashladder:
                 accept_match_challenge(cookie_jar, match_ids[i])
             else:
@@ -318,7 +321,7 @@ def process_new_search(cookie_jar, message, own_username):
             opponent_country = match_info['player1']['location']['country']['name']
             opponent_id = match_info['player1']['id']
 
-            if match_info['is_ranked']:
+            if not match_relevant(match_info):
                 break
 
             if not opponent_uses_active_build(match_info):
@@ -368,6 +371,19 @@ def opponent_uses_active_build(match):
 def match_is_doubles(match):
     if match['team_size'] == 2:
         return True
+    return False
+
+
+def match_relevant(match=None, is_ranked=None):
+    if match:
+        is_ranked = match['is_ranked']
+
+    if not is_ranked and friendlies_enabled:
+        return True
+
+    if is_ranked and ranked_enabled:
+        return True
+
     return False
 
 

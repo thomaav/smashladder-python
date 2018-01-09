@@ -241,6 +241,7 @@ class MainWindow(QMainWindow):
         self.match_window = MatchWindow(self)
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print)
+        self.match_window.quit_match_button.clicked.connect(self.quit_matchmaking)
 
 
     def init_threads(self):

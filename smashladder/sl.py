@@ -204,7 +204,7 @@ def challenge_relevant_friendlies(cookie_jar, own_username):
             else:
                 print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
 
-            challenged_players.append({ 'username': opponent_username,
+            challenged_players.append({ 'username': decorate_username(opponent_username),
                                         'country': opponent_country })
 
     return challenged_players
@@ -236,7 +236,7 @@ def process_private_chat_message(message):
             chat_message = chat_messages[message_key]['message']
 
     if username:
-        return { 'info': '[private chat] ' + username + ': ' + chat_message }
+        return { 'info': '[private chat] ' + decorate_username(username) + ': ' + chat_message }
     else:
         return { 'info': 'Unspecified failure in handling private chat message' }
 
@@ -299,11 +299,11 @@ def process_open_challenges(cookie_jar, message):
                 print('[DEBUG]: Would accept challenge ' + opponent_username[i] + ' from ' + country)
 
             return { 'match_id': match_ids[i],
-                     'info': 'Accepted challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] }
+                     'info': 'Accepted challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i] }
         else:
             decline_match_challenge(cookie_jar, match_ids[i])
             return { 'match_id': match_ids[i],
-                     'info': 'Declined challenge from ' + opponent_username[i] + ' from ' + opponent_country[i] }
+                     'info': 'Declined challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i] }
 
     return { 'match_id': None,
              'info': 'No awaiting challenges matching config criteria' }
@@ -341,7 +341,7 @@ def process_new_search(cookie_jar, message, own_username):
                     print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
 
     if 'response' in locals():
-        return { 'username': opponent_username,
+        return { 'username': decorate_username(opponent_username),
                  'country': opponent_country }
     else:
         return None
@@ -396,3 +396,7 @@ def send_match_chat_message(cookie_jar, match_id, message):
                 'send_id': 20 }
     response = http_post_request('https://www.smashladder.com/matchmaking/send_chat',
                                  content, cookie_jar)
+
+
+def decorate_username(string):
+    return '<span class="username">' + string + '</span>'

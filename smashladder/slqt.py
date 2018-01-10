@@ -19,6 +19,7 @@ from PyQt5 import uic
 
 MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
+QDOCUMENT_CSS_FILE = 'static/qdocument.css'
 MATCH_UI_FILE = 'static/match.ui'
 
 
@@ -262,6 +263,9 @@ class MainWindow(MovableQWidget):
         self.config_info.mouseMoveEvent = (self.highlight_config_line)
         self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
+
+        with open(QDOCUMENT_CSS_FILE) as f:
+            self.matchmaking_info.document().setDefaultStyleSheet(f.read())
 
         self.friendlies_checkbox.setChecked(True)
         self.friendlies_checkbox.toggled.connect(self.change_checkbox_config)

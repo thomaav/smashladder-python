@@ -34,7 +34,7 @@
    <widget class="QPushButton" name="relog_button">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>370</x>
       <y>20</y>
       <width>111</width>
       <height>41</height>
@@ -158,7 +158,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>450</x>
       <y>30</y>
       <width>21</width>
       <height>21</height>
@@ -171,7 +171,7 @@
    <widget class="QLabel" name="logged_in_label">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>370</x>
       <y>30</y>
       <width>71</width>
       <height>20</height>

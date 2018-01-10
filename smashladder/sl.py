@@ -398,5 +398,5 @@ def send_match_chat_message(cookie_jar, match_id, message):
                                  content, cookie_jar)
 
 
-def decorate_username(string):
-    return '<span class="username">' + string + '</span>'
+def decorate_username(username):
+    return '<span class="username">' + username + '</span>'

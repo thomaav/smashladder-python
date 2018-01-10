@@ -21,6 +21,7 @@ MAINWINDOW_UI_FILE = 'static/mainwindow.ui'
 MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
 QDOCUMENT_CSS_FILE = 'static/qdocument.css'
 MATCH_UI_FILE = 'static/match.ui'
+PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
 
 
 def qt_print(text):
@@ -84,6 +85,50 @@ class MovableQWidget(QWidget):
             diff_y = pos.y() - self.mpress_cur_y
 
             self.move(self.mpress_x + diff_x, self.mpress_y + diff_y)
+
+
+class PrivateChatWindow(MovableQWidget):
+    def __init__(self, main_window, parent=None):
+        super().__init__(parent)
+        self.username = None
+        self.main_window = main_window
+        self.initUI()
+
+
+    def initUI(self):
+        uic.loadUi(PRIV_CHAT_UI_FILE, self)
+
+        self.setWindowTitle('Private chat')
+        self.setFixedSize(self.width(), self.height())
+        self.setObjectName('PrivateChatWidget')
+        self.setWindowFlags(Qt.FramelessWindowHint)
+
+        with open(MAINWINDOW_CSS_FILE) as f:
+            self.setStyleSheet(f.read())
+
+
+    def print(self, text):
+        self.priv_chat_info.append('| ' + text)
+
+
+    def clear(self):
+        self.priv_chat_info.clear()
+
+
+    def change_user(self, username):
+        self.clear()
+        self.username = username
+        self.username_label.setText(username)
+
+
+    def send_message(self):
+        message = self.priv_chat_input.text()
+        if message:
+            def async_message():
+                sl.send_private_chat_message(main_window.cookie_jar, 'littlemeleekid', message)
+            thr = threading.Thread(target=async_message, args=(), kwargs={})
+            thr.start()
+            self.priv_chat_input.setText('')
 
 
 class MatchWindow(MovableQWidget):
@@ -264,6 +309,7 @@ class MainWindow(MovableQWidget):
         self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
 
+        self.matchmaking_info.mousePressEvent = (self.click_username)
         with open(QDOCUMENT_CSS_FILE) as f:
             self.matchmaking_info.document().setDefaultStyleSheet(f.read())
 
@@ -292,6 +338,11 @@ class MainWindow(MovableQWidget):
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print)
         self.match_window.quit_match_button.clicked.connect(self.quit_matchmaking)
+
+        self.priv_chat_window = PrivateChatWindow(self)
+        self.priv_chat_window.priv_chat_input.returnPressed.connect(self.priv_chat_window.send_message)
+        self.socket_thread.private_message.connect(self.priv_chat_window.print)
+        self.priv_chat_window.close_button.clicked.connect(lambda: self.priv_chat_window.hide())
 
 
     def init_threads(self):
@@ -484,6 +535,17 @@ class MainWindow(MovableQWidget):
         elif config_info_title == 'Whitelist':
             local.remove_whitelisted_country(selected_text)
             self.list_whitelisted_countries_button.click()
+
+
+    def click_username(self, evt):
+        cur = self.matchmaking_info.cursorForPosition(evt.pos())
+        cur.select(QTextCursor.BlockUnderCursor)
+        selected_line = cur.selectedText()
+
+        if '| [private chat]' in selected_line:
+            username = selected_line.strip().split(' ')[3].replace(':', '')
+            self.priv_chat_window.change_user(username)
+            self.priv_chat_window.show()
 
 
     def list_blacklisted_players(self):

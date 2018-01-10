@@ -32,6 +32,7 @@ class SlBaseThread(QThread):
 class SlSocketThread(SlBaseThread):
     entered_match = pyqtSignal(str)
     match_message = pyqtSignal(str)
+    private_message = pyqtSignal(str)
 
     def __init__(self, cookie_jar=None, parent=None):
         super().__init__(cookie_jar, parent)
@@ -47,6 +48,7 @@ class SlSocketThread(SlBaseThread):
     def process_private_chat_message(self, raw_message):
         processed_message = sl.process_private_chat_message(raw_message)
         self.qt_print.emit(processed_message['info'])
+        self.private_message.emit(processed_message['info'].replace('[private chat] ', ''))
 
 
     def process_match_message(self, raw_message):

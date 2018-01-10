@@ -398,5 +398,20 @@ def send_match_chat_message(cookie_jar, match_id, message):
                                  content, cookie_jar)
 
 
+def send_private_chat_message(cookie_jar, username, message):
+    fetch_user_content = { 'username': username }
+    response = http_post_request('https://www.smashladder.com/matchmaking/user',
+                                 fetch_user_content, cookie_jar)
+    try:
+        user_id = (response.json())['user']['id']
+        message_content = { 'to_user_id': user_id,
+                            'message': message,
+                            'send_id': 1 }
+        response = http_post_request('https://www.smashladder.com/matchmaking/send_chat',
+                                     message_content, cookie_jar)
+    except Exception as e:
+        print('[DEBUG]: Error in sending private chat: ' + str(e))
+
+
 def decorate_username(username):
     return '<span class="username">' + username + '</span>'

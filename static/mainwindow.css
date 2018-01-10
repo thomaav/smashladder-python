@@ -1,6 +1,7 @@
 #MainWidget,
 #LoginWidget,
-#MatchWidget {
+#MatchWidget,
+#PrivateChatWidget {
     background-color: rgb(28, 31, 43);
 }
 

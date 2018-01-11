@@ -399,11 +399,8 @@ def send_match_chat_message(cookie_jar, match_id, message):
 
 
 def send_private_chat_message(cookie_jar, username, message):
-    fetch_user_content = { 'username': username }
-    response = http_post_request('https://www.smashladder.com/matchmaking/user',
-                                 fetch_user_content, cookie_jar)
     try:
-        user_id = (response.json())['user']['id']
+        user_id = fetch_user_id(cookie_jar, username)
         message_content = { 'to_user_id': user_id,
                             'message': message,
                             'send_id': 1 }
@@ -414,11 +411,8 @@ def send_private_chat_message(cookie_jar, username, message):
 
 
 def fetch_private_messages(cookie_jar, username):
-    fetch_user_content = { 'username': username }
-    response = http_post_request('https://www.smashladder.com/matchmaking/user',
-                                 fetch_user_content, cookie_jar)
     try:
-        user_id = (response.json())['user']['id']
+        user_id = fetch_user_id(cookie_jar, username)
         content = { 'id': user_id,
                     'username': username }
         response = http_post_request('https://www.smashladder.com/matchmaking/private_chat',
@@ -432,11 +426,23 @@ def fetch_private_messages(cookie_jar, username):
             message_username = messages[message_id]['player']['username']
             message_message = messages[message_id]['message']
             latest_messages.append({ 'username': message_username, 'message': message_message})
+        return latest_messages
     except Exception as e:
         print('[DEBUG]: Error in fetching private messages: ' + str(e))
         return []
-    return latest_messages
 
 
 def decorate_username(username):
     return '<span class="username">' + username + '</span>'
+
+
+def fetch_user_id(cookie_jar, username):
+    fetch_user_content = { 'username': username }
+    response = http_post_request('https://www.smashladder.com/matchmaking/user',
+                                 fetch_user_content, cookie_jar)
+    try:
+        user_id = (response.json())['user']['id']
+        return user_id
+    except Exception as e:
+        print('[DEBUG]: Error in fetching user id: ' + str(e))
+        return None

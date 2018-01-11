@@ -350,6 +350,7 @@ class MainWindow(MovableQWidget):
         self.priv_chat_window.priv_chat_input.returnPressed.connect(self.priv_chat_window.send_message)
         self.socket_thread.private_message.connect(self.priv_chat_window.print)
         self.priv_chat_window.close_button.clicked.connect(lambda: self.priv_chat_window.hide())
+        self.priv_chat_label.mousePressEvent = (lambda _: self.priv_chat_window.show())
 
 
     def init_threads(self):

@@ -124,10 +124,19 @@ class PrivateChatWindow(MovableQWidget):
     def send_message(self):
         message = self.priv_chat_input.text()
         if message:
-            def async_message():
-                sl.send_private_chat_message(main_window.cookie_jar, 'littlemeleekid', message)
-            thr = threading.Thread(target=async_message, args=(), kwargs={})
-            thr.start()
+            if message[0] == '/':
+                if 'change_user' in message:
+                    smsg = message.strip().split()
+                    try:
+                        username = smsg[1]
+                        self.change_user(username)
+                    except:
+                        print('[DEBUG]: Error changing privmsg user, no username found')
+            else:
+                def async_message():
+                    sl.send_private_chat_message(main_window.cookie_jar, self.username, message)
+                thr = threading.Thread(target=async_message, args=(), kwargs={})
+                thr.start()
             self.priv_chat_input.setText('')
 
 

@@ -88,10 +88,13 @@ class MovableQWidget(QWidget):
 
 
 class PrivateChatWindow(MovableQWidget):
+    async_print = pyqtSignal(str)
+
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
         self.username = None
         self.main_window = main_window
+        self.async_print.connect(self.print)
         self.initUI()
 
 
@@ -119,6 +122,13 @@ class PrivateChatWindow(MovableQWidget):
         self.clear()
         self.username = username
         self.username_label.setText(username)
+
+        def async_fetch_messages():
+            latest_messages = sl.fetch_private_messages(main_window.cookie_jar, self.username)
+            for message in latest_messages:
+                self.async_print.emit(message['username'] + ': ' + message['message'])
+        thr = threading.Thread(target=async_fetch_messages, args=(), kwargs={})
+        thr.start()
 
 
     def send_message(self):

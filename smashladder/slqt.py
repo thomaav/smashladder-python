@@ -284,6 +284,7 @@ class MainWindow(MovableQWidget):
         super().__init__(parent)
         self.init_threads()
         self.initUI()
+        self.closeEvent = (lambda self: app.quit())
 
 
     def initUI(self):

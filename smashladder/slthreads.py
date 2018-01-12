@@ -2,6 +2,7 @@ import builtins
 import threading
 import time
 import websocket
+import ssl
 import smashladder.sl as sl
 import smashladder.slexceptions as slexceptions
 from smashladder.local import cookie_jar_to_string
@@ -143,7 +144,7 @@ class SlSocketThread(SlBaseThread):
                                          on_error = self.on_error,
                                          on_close = self.on_close,
                                          cookie = cookie_jar_to_string(self.cookie_jar))
-        self.ws.run_forever()
+        self.ws.run_forever(sslopt={ 'cert_reqs': ssl.CERT_NONE })
 
 
 class MMThread(SlBaseThread):

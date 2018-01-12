@@ -603,5 +603,6 @@ class MainWindow(MovableQWidget):
 
 
 app = QApplication(sys.argv)
+app.setWindowIcon(QIcon('static/smashladder.png'))
 main_window = MainWindow()
 main_window.show()

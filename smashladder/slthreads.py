@@ -94,6 +94,7 @@ class SlSocketThread(SlBaseThread):
         if player:
             self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
+
     def on_message(self, ws, raw_message):
         with self.lock:
             if '\"authentication\":false' in raw_message:

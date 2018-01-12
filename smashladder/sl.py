@@ -250,7 +250,8 @@ def process_match_message(message):
         if 'start_time' in message['current_matches'][match_id]:
             return { 'match_id': match_id,
                      'typing': False,
-                     'info': 'Entered match: ' + match_id }
+                     'info': 'Entered match: ' + match_id,
+                     'opponent_username': message['current_matches'][match_id]['player2']['username'] }
 
     for match_id in message['current_matches']:
         match_chat_data = message['current_matches'][match_id]['chat']['chat_messages']
@@ -299,14 +300,17 @@ def process_open_challenges(cookie_jar, message):
                 print('[DEBUG]: Would accept challenge ' + opponent_username[i] + ' from ' + country)
 
             return { 'match_id': match_ids[i],
-                     'info': 'Accepted challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i] }
+                     'info': 'Accepted challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i],
+                     'opponent_username': opponent_username[i] }
         else:
             decline_match_challenge(cookie_jar, match_ids[i])
             return { 'match_id': match_ids[i],
-                     'info': 'Declined challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i] }
+                     'info': 'Declined challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i],
+                     'opponent_username': opponent_username[i]}
 
     return { 'match_id': None,
-             'info': 'No awaiting challenges matching config criteria' }
+             'info': 'No awaiting challenges matching config criteria',
+             'opponent_username': None }
 
 
 def process_new_search(cookie_jar, message, own_username):

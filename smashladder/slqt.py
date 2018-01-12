@@ -433,6 +433,8 @@ class MainWindow(MovableQWidget):
         builtins.idle = False
         self.matchmaking_thread.start()
         self.challenge_thread.start()
+        if not self.socket_thread.isRunning():
+            self.socket_thread.start()
 
         qt_change_status(MMStatus.IN_QUEUE)
         qt_print('Successfully started matchmaking')

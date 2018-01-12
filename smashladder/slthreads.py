@@ -30,7 +30,7 @@ class SlBaseThread(QThread):
 
 
 class SlSocketThread(SlBaseThread):
-    entered_match = pyqtSignal(str, str)
+    entered_match = pyqtSignal(str, str, str)
     match_message = pyqtSignal(str)
     private_message = pyqtSignal(str)
 
@@ -54,7 +54,9 @@ class SlSocketThread(SlBaseThread):
     def process_match_message(self, raw_message):
         processed_message = sl.process_match_message(raw_message)
         if 'Entered match' in processed_message['info']:
-            self.entered_match.emit(processed_message['match_id'], processed_message['opponent_username'])
+            self.entered_match.emit(processed_message['match_id'],
+                                    processed_message['opponent_username'],
+                                    processed_message['opponent_country'])
             return
 
         if not processed_message['typing']:
@@ -73,7 +75,9 @@ class SlSocketThread(SlBaseThread):
             self.qt_print.emit(processed_message['info'])
 
         if 'Accepted challenge' in processed_message['info']:
-            self.entered_match.emit(processed_message['match_id'], processed_message['opponent_username'])
+            self.entered_match.emit(processed_message['match_id'],
+                                    processed_message['opponent_username'],
+                                    processed_message['opponent_country'])
 
 
     def process_new_search(self, raw_message):

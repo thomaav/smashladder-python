@@ -469,7 +469,7 @@ class MainWindow(MovableQWidget):
         qt_print('Successfully quit matchmaking')
 
 
-    def entered_match(self, match_id, opponent_username):
+    def entered_match(self, match_id, opponent_username, opponent_country):
         if builtins.in_match:
             return
 
@@ -487,7 +487,7 @@ class MainWindow(MovableQWidget):
         qt_print('Entered match: ' + match_id)
         qt_change_status(MMStatus.IN_MATCH)
         self.match_window.show()
-        self.match_window.print('Match with ' + opponent_username)
+        self.match_window.print('Match with ' + opponent_username + ' from ' + opponent_country)
         self.match_window.setFocus()
 
 

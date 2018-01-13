@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>353</width>
-    <height>271</height>
+    <width>612</width>
+    <height>376</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>331</width>
-     <height>221</height>
+     <width>591</width>
+     <height>320</height>
     </rect>
    </property>
   </widget>
@@ -27,8 +27,8 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>240</y>
-     <width>280</width>
+     <y>340</y>
+     <width>540</width>
      <height>21</height>
     </rect>
    </property>
@@ -39,8 +39,8 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>299</x>
-     <y>240</y>
+     <x>560</x>
+     <y>340</y>
      <width>41</width>
      <height>21</height>
     </rect>
@@ -52,7 +52,7 @@
   <widget class="QPushButton" name="refresh_match_chat_button">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>570</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>

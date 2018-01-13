@@ -380,10 +380,12 @@ class MainWindow(MovableQWidget):
         self.logout_button.clicked.connect(self.logout)
         self.login()
 
-        self.match_window = MatchWindow(self)
+        self.match_window = MatchWindow(self, self)
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print)
-        self.match_window.quit_match_button.clicked.connect(self.match_window.hide)
+        self.match_window.quit_match_button.clicked.connect(self.quit_match)
+        self.match_window.move(self.width() / 2 - self.match_window.width() / 2,
+                               self.height() / 2 - self.match_window.height() / 2)
 
         self.priv_chat_window = PrivateChatWindow(self)
         self.priv_chat_window.priv_chat_input.returnPressed.connect(self.priv_chat_window.send_message)
@@ -508,9 +510,17 @@ class MainWindow(MovableQWidget):
         QSound.play('static/challenger.wav')
         qt_print('Entered match: ' + match_id)
         qt_change_status(MMStatus.IN_MATCH)
+        self.centralWidget.hide()
         self.match_window.show()
         self.match_window.print('Match with ' + opponent_username + ' from ' + opponent_country)
         self.match_window.setFocus()
+
+
+    def quit_match(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        self.match_window.hide()
+        self.centralWidget.show()
+        QApplication.restoreOverrideCursor()
 
 
     def center(self):

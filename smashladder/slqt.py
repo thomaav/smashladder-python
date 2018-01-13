@@ -412,8 +412,9 @@ class MainWindow(MovableQWidget):
             self.socket_thread.set_login(self.cookie_jar)
             self.matchmaking_thread.set_login(self.cookie_jar)
             self.challenge_thread.set_login(self.cookie_jar)
-
             self.socket_thread.start()
+
+            self.quit_existing_match()
 
             self.relog_button.hide()
             self.logged_in_label.show()
@@ -621,6 +622,13 @@ class MainWindow(MovableQWidget):
             self.config_info.append(country)
 
         self.config_info.verticalScrollBar().setValue(0)
+
+
+    def quit_existing_match(self):
+        match_id = sl.fetch_existing_match(self.cookie_jar)
+        if match_id:
+            sl.report_friendly_done(self.cookie_jar, match_id)
+            sl.finished_chatting_with_match(self.cookie_jar, match_id)
 
 
 app = QApplication(sys.argv)

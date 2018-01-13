@@ -475,3 +475,16 @@ def fetch_match_messages(cookie_jar):
         messages.append({ 'username': username, 'message': message })
 
     return messages
+
+
+def fetch_existing_match(cookie_jar):
+    content = { 'is_in_ladder': True,
+                'match_only_mode': True }
+    response = http_post_request('https://www.smashladder.com/matchmaking/get_user_going',
+                                 content, cookie_jar)
+
+    if not response.json()['current_matches']:
+        return None
+
+    match_id = list(response.json()['current_matches'].keys())[0]
+    return match_id

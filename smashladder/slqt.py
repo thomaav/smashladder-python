@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
     QTextFormat, QCursor
+from PyQt5.QtMultimedia import QSound
 from PyQt5.QtCore import QCoreApplication, QPoint, Qt, QThread, pyqtSignal
 from PyQt5 import uic
 
@@ -503,6 +504,7 @@ class MainWindow(MovableQWidget):
         if self.challenge_thread.isRunning():
             self.challenge_thread.terminate()
 
+        QSound.play('static/challenger.wav')
         qt_print('Entered match: ' + match_id)
         qt_change_status(MMStatus.IN_MATCH)
         self.match_window.show()

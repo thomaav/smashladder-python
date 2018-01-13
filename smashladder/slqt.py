@@ -151,7 +151,7 @@ class PrivateChatWindow(MovableQWidget):
             self.priv_chat_input.setText('')
 
 
-class MatchWindow(MovableQWidget):
+class MatchWindow(QWidget):
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
         self.main_window = main_window

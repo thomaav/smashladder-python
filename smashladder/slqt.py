@@ -168,6 +168,9 @@ class MatchWindow(MovableQWidget):
         with open(MAINWINDOW_CSS_FILE) as f:
             self.setStyleSheet(f.read())
 
+        self.refresh_match_chat_button.setIcon(QIcon('static/refresh.png'))
+        self.refresh_match_chat_button.clicked.connect(self.refresh_match_chat)
+
         self.hideEvent = self.hide_event
 
 
@@ -192,6 +195,21 @@ class MatchWindow(MovableQWidget):
     def hide_event(self, evt):
         self.clear()
         main_window.quit_matchmaking()
+
+
+    def refresh_match_chat(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        self.clear()
+        self.print('Refreshing match messages..')
+        QApplication.processEvents()
+        self.repaint()
+
+        match_messages = sl.fetch_match_messages(main_window.cookie_jar)
+        for message in match_messages:
+            self.print(message['username'] + ': ' + message['message'])
+
+        QApplication.restoreOverrideCursor()
 
 
 class LoginWindow(QWidget):

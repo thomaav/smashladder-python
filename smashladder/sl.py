@@ -455,3 +455,23 @@ def fetch_user_id(cookie_jar, username):
     except Exception as e:
         print('[DEBUG]: Error in fetching user id: ' + str(e))
         return None
+
+
+def fetch_match_messages(cookie_jar):
+    content = { 'is_in_ladder': True,
+                'match_only_mode': True }
+    response = http_post_request('https://www.smashladder.com/matchmaking/get_user_going',
+                                 content, cookie_jar)
+
+    if not response.json()['current_matches']:
+        return []
+
+    chat = list(response.json()['current_matches'].values())[0]['chat']['chat_messages']
+
+    messages = []
+    for message_id in chat:
+        username = chat[message_id]['player']['username']
+        message = chat[message_id]['message']
+        messages.append({ 'username': username, 'message': message })
+
+    return messages

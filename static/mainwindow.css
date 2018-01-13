@@ -53,3 +53,8 @@ QCheckBox::indicator {
 QCheckBox::indicator:checked {
     background-color: green;
 }
+
+#refresh_match_chat_button {
+    background: rgba(0, 0, 0, 0);
+    border: none;
+}

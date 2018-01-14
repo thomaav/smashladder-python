@@ -54,7 +54,9 @@ QCheckBox::indicator:checked {
     background-color: green;
 }
 
-#refresh_match_chat_button {
+#refresh_match_chat_button,
+#list_preferred_players_button,
+#toggle_preferred_button {
     background: rgba(0, 0, 0, 0);
     border: none;
 }

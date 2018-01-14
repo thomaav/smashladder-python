@@ -5,6 +5,7 @@ import os.path
 COOKIE_FILE = 'conf/cookies.dat'
 WHITELISTED_COUNTRIES_FILE = 'conf/whitelisted_countries'
 BLACKLISTED_PLAYERS_FILE = 'conf/blacklisted_players'
+PREFERRED_PLAYERS_FILE = 'conf/preferred_players'
 
 
 def save_cookies_to_file(cookie_jar, filename):
@@ -37,6 +38,12 @@ if os.path.isfile(BLACKLISTED_PLAYERS_FILE):
 else:
     BLACKLISTED_PLAYERS = []
 
+if os.path.isfile(PREFERRED_PLAYERS_FILE):
+    with open(PREFERRED_PLAYERS_FILE, 'rb') as f:
+        PREFERRED_PLAYERS = pickle.load(f)
+else:
+    PREFERRED_PLAYERS = []
+
 
 def dump_whitelisted_countries():
     with open(WHITELISTED_COUNTRIES_FILE, 'wb') as f:
@@ -48,6 +55,11 @@ def dump_blacklisted_players():
         pickle.dump(BLACKLISTED_PLAYERS, f)
 
 
+def dump_preferred_players():
+    with open(PREFERRED_PLAYERS_FILE, 'wb') as f:
+        pickle.dump(PREFERRED_PLAYERS, f)
+
+
 def whitelist_country(country):
     WHITELISTED_COUNTRIES.append(country)
     dump_whitelisted_countries()
@@ -56,6 +68,11 @@ def whitelist_country(country):
 def blacklist_player(player):
     BLACKLISTED_PLAYERS.append(player)
     dump_blacklisted_players()
+
+
+def prefer_player(player):
+    PREFERRED_PLAYERS.append(player)
+    dump_preferred_players()
 
 
 def remove_whitelisted_country(country):
@@ -72,6 +89,14 @@ def remove_blacklisted_player(player):
 
     BLACKLISTED_PLAYERS.remove(player)
     dump_blacklisted_players()
+
+
+def remove_preferred_player(player):
+    if player not in PREFERRED_PLAYERS:
+        return
+
+    PREFERRED_PLAYERS.remove(player)
+    dump_preferred_players()
 
 
 WHITELISTED_GAMES = { 'Melee': '2', }

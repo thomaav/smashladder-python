@@ -133,6 +133,8 @@ class MatchWindow(QWidget):
     def __init__(self, main_window, parent=None):
         super().__init__(parent)
         self.main_window = main_window
+        self.preferred_toggled = False
+        self.opponent = None
         self.initUI()
 
 
@@ -150,7 +152,11 @@ class MatchWindow(QWidget):
         self.refresh_match_chat_button.setIcon(QIcon('static/refresh.png'))
         self.refresh_match_chat_button.clicked.connect(self.refresh_match_chat)
 
+        self.toggle_preferred_button.setIcon(QIcon('static/plus.png'))
+        self.toggle_preferred_button.clicked.connect(self.toggle_preferred_click)
+
         self.hideEvent = self.hide_event
+        self.showEvent = self.show_event
 
 
     def print(self, text):
@@ -159,6 +165,30 @@ class MatchWindow(QWidget):
 
     def clear(self):
         self.match_info.clear()
+
+
+    def toggle_preferred_player(self, player):
+        if self.preferred_toggled:
+            local.remove_preferred_player(player)
+            self.print(player + ' removed from preferred players')
+        else:
+            local.prefer_player(player)
+            self.print(player + ' added to preferred players')
+
+
+    def toggle_preferred_click(self):
+        if not self.opponent:
+            self.print('No opponent found for this match, try restarting the application')
+            return
+
+        if self.preferred_toggled:
+            self.toggle_preferred_player(self.opponent)
+            self.toggle_preferred_button.setIcon(QIcon('static/plus.png'))
+            self.preferred_toggled = False
+        else:
+            self.toggle_preferred_player(self.opponent)
+            self.toggle_preferred_button.setIcon(QIcon('static/minus.png'))
+            self.preferred_toggled = True
 
 
     def send_message(self):
@@ -174,6 +204,15 @@ class MatchWindow(QWidget):
     def hide_event(self, evt):
         self.clear()
         main_window.quit_matchmaking()
+
+
+    def show_event(self, evt):
+        if self.opponent in local.PREFERRED_PLAYERS:
+            self.preferred_toggled = True
+            self.toggle_preferred_button.setIcon(QIcon('static/minus.png'))
+        else:
+            self.preferred_toggled = False
+            self.toggle_preferred_button.setIcon(QIcon('static/plus.png'))
 
 
     def refresh_match_chat(self):
@@ -308,8 +347,10 @@ class MainWindow(MovableQWidget):
 
         self.list_blacklisted_players_button.setIcon(QIcon('static/list.ico'))
         self.list_whitelisted_countries_button.setIcon(QIcon('static/list.ico'))
+        self.list_preferred_players_button.setIcon(QIcon('static/friend.png'))
         self.list_blacklisted_players_button.clicked.connect(self.list_blacklisted_players)
         self.list_whitelisted_countries_button.clicked.connect(self.list_whitelisted_countries)
+        self.list_preferred_players_button.clicked.connect(self.list_preferred_players)
 
         whitelist_country_tooltip = \
         """
@@ -513,6 +554,7 @@ class MainWindow(MovableQWidget):
         self.print('Entered match: ' + match_id)
         self.change_status(MMStatus.IN_MATCH)
         self.centralWidget.hide()
+        self.match_window.opponent = opponent_username
         self.match_window.show()
         self.match_window.print('Match with ' + opponent_username + ' from ' + opponent_country)
         self.match_window.setFocus()
@@ -594,6 +636,9 @@ class MainWindow(MovableQWidget):
         elif config_info_title == 'Whitelist':
             local.remove_whitelisted_country(selected_text)
             self.list_whitelisted_countries_button.click()
+        elif config_info_title == 'Preferred':
+            local.remove_preferred_player(selected_text)
+            self.list_preferred_players_button.click()
 
 
     def click_username(self, evt):
@@ -625,6 +670,17 @@ class MainWindow(MovableQWidget):
 
         for country in sorted(local.WHITELISTED_COUNTRIES):
             self.config_info.append(country)
+
+        self.config_info.verticalScrollBar().setValue(0)
+
+
+    def list_preferred_players(self):
+        self.config_info.clear()
+        self.config_info.append('Preferred players')
+        self.config_info.append('----------------------')
+
+        for player in sorted(local.PREFERRED_PLAYERS):
+            self.config_info.append(player)
 
         self.config_info.verticalScrollBar().setValue(0)
 

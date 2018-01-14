@@ -25,15 +25,6 @@ MATCH_UI_FILE = 'static/match.ui'
 PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
 
 
-def qt_change_status(status):
-    if status == MMStatus.IDLE:
-        main_window.mm_status.setText('Idle')
-    elif status == MMStatus.IN_QUEUE:
-        main_window.mm_status.setText('In queue')
-    elif status == MMStatus.IN_MATCH:
-        main_window.mm_status.setText('In match')
-
-
 def move_widget(widget, x_center, y_center):
     qr = widget.frameGeometry()
     center = QPoint(x_center, y_center)
@@ -405,6 +396,15 @@ class MainWindow(MovableQWidget):
         self.repaint()
 
 
+    def change_status(self, status):
+        if status == MMStatus.IDLE:
+            self.mm_status.setText('Idle')
+        elif status == MMStatus.IN_QUEUE:
+            self.mm_status.setText('In queue')
+        elif status == MMStatus.IN_MATCH:
+            self.mm_status.setText('In match')
+
+
     def login(self):
         if os.path.isfile(local.COOKIE_FILE):
             local.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
@@ -459,7 +459,7 @@ class MainWindow(MovableQWidget):
         if not self.socket_thread.isRunning():
             self.socket_thread.start()
 
-        qt_change_status(MMStatus.IN_QUEUE)
+        self.change_status(MMStatus.IN_QUEUE)
         self.print('Successfully started matchmaking')
 
 
@@ -488,7 +488,7 @@ class MainWindow(MovableQWidget):
         builtins.current_match_id = None
         builtins.in_match = False
         builtins.idle = True
-        qt_change_status(MMStatus.IDLE)
+        self.change_status(MMStatus.IDLE)
         self.print('Successfully quit matchmaking')
 
 
@@ -509,7 +509,7 @@ class MainWindow(MovableQWidget):
 
         QSound.play('static/challenger.wav')
         self.print('Entered match: ' + match_id)
-        qt_change_status(MMStatus.IN_MATCH)
+        self.change_status(MMStatus.IN_MATCH)
         self.centralWidget.hide()
         self.match_window.show()
         self.match_window.print('Match with ' + opponent_username + ' from ' + opponent_country)

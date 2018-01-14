@@ -550,6 +550,7 @@ class MainWindow(MovableQWidget):
         self.matchmaking_thread.wait()
         if self.challenge_thread.isRunning():
             self.challenge_thread.terminate()
+        builtins.idle = False
 
         QSound.play('static/challenger.wav')
         self.print('Entered match: ' + match_id)
@@ -651,6 +652,17 @@ class MainWindow(MovableQWidget):
             username = selected_line.strip().split(' ')[3].replace(':', '')
             self.priv_chat_window.change_user(username)
             self.priv_chat_window.show()
+        elif 'preferred player' in selected_line:
+            processed_line = (selected_line.strip()[2:]).split(' ')
+            username = processed_line[0].replace(',', '')
+            user_id = processed_line[1][1:-2]
+            match_id = processed_line[-1]
+
+            def async_challenge():
+                sl.challenge_opponent(self.cookie_jar, user_id, match_id)
+            thr = threading.Thread(target=async_challenge, args=(), kwargs={})
+            thr.start()
+            self.print('Challenging preferred player ' + username)
 
 
     def list_blacklisted_players(self):

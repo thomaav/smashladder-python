@@ -97,9 +97,14 @@ class SlSocketThread(SlBaseThread):
 
 
     def check_search_preferred_player(self, raw_message):
-        username = sl.get_search_player(raw_message)
-        if username and username in PREFERRED_PLAYERS:
-            self.qt_print.emit(username + ', preferred player, queued up')
+        search_info = sl.get_search_player(raw_message)
+        if not search_info:
+            return
+
+        username, opponent_id, match_id = search_info
+        if username in PREFERRED_PLAYERS:
+            self.qt_print.emit(username + ' (' +  str(opponent_id) + ')' +
+                               ', preferred player, queued up: ' + match_id)
             self.preferred_queued.emit()
 
 
@@ -112,6 +117,13 @@ class SlSocketThread(SlBaseThread):
             if builtins.idle:
                 if 'searches' in raw_message:
                     self.check_search_preferred_player(raw_message)
+                elif 'current_matches' in raw_message and \
+                     '\"all_entries\":true' not in raw_message:
+                    try:
+                        self.process_match_message(raw_message)
+                    except Exception as e:
+                        print(raw_message)
+                        print(e)
 
             if builtins.in_queue:
                 if 'current_matches' in raw_message:

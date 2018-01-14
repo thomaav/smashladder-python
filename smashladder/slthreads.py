@@ -5,7 +5,7 @@ import websocket
 import ssl
 import smashladder.sl as sl
 import smashladder.slexceptions as slexceptions
-from smashladder.local import cookie_jar_to_string
+from smashladder.local import cookie_jar_to_string, PREFERRED_PLAYERS
 from PyQt5.QtCore import QThread, pyqtSignal
 
 class SlBaseThread(QThread):
@@ -34,6 +34,7 @@ class SlSocketThread(SlBaseThread):
     entered_match = pyqtSignal(str, str, str)
     match_message = pyqtSignal(str)
     private_message = pyqtSignal(str)
+    preferred_queued = pyqtSignal()
 
     def __init__(self, cookie_jar=None, parent=None):
         super().__init__(cookie_jar, parent)
@@ -95,11 +96,22 @@ class SlSocketThread(SlBaseThread):
             self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
 
+    def check_search_preferred_player(self, raw_message):
+        username = sl.get_search_player(raw_message)
+        if username and username in PREFERRED_PLAYERS:
+            self.qt_print.emit(username + ', preferred player, queued up')
+            self.preferred_queued.emit()
+
+
     def on_message(self, ws, raw_message):
         with self.lock:
             if '\"authentication\":false' in raw_message:
                 self.auth_false()
                 return
+
+            if builtins.idle:
+                if 'searches' in raw_message:
+                    self.check_search_preferred_player(raw_message)
 
             if builtins.in_queue:
                 if 'current_matches' in raw_message:

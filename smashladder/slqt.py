@@ -421,6 +421,7 @@ class MainWindow(MovableQWidget):
         self.matchmaking_thread.qt_print.connect(self.print)
         self.socket_thread.qt_print.connect(self.print)
         self.socket_thread.entered_match.connect(self.entered_match)
+        self.socket_thread.preferred_queued.connect(lambda: QSound.play('static/tutturuu.wav'))
         self.challenge_thread.qt_print.connect(self.print)
 
 

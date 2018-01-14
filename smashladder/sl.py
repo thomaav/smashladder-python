@@ -318,6 +318,19 @@ def process_open_challenges(cookie_jar, message):
              'opponent_country': None }
 
 
+def get_search_player(message):
+    message = json.loads(message)
+
+    for match_id in message['searches']:
+        if re.match('[0-9]{7,9}', match_id):
+            if 'is_removed' in message['searches'][match_id]:
+                return None
+
+            match = message['searches'][match_id]
+            opponent_username = match['player1']['username']
+            return opponent_username
+
+
 def process_new_search(cookie_jar, message, own_username):
     message = json.loads(message)
 

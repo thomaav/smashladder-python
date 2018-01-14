@@ -25,12 +25,6 @@ MATCH_UI_FILE = 'static/match.ui'
 PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
 
 
-def qt_print(text):
-    main_window.matchmaking_info.append('| ' + text)
-    QApplication.processEvents()
-    main_window.repaint()
-
-
 def qt_change_status(status):
     if status == MMStatus.IDLE:
         main_window.mm_status.setText('Idle')
@@ -294,7 +288,7 @@ class LoginWindow(QWidget):
             else:
                 self.login_status.setText('Wrong username and/or password')
         except slexceptions.RequestTimeoutException as e:
-            qt_print(str(e))
+            seflf.main_window.print(str(e))
             self.login_status.setText('Login to server timed out, try again later')
 
 
@@ -399,10 +393,16 @@ class MainWindow(MovableQWidget):
         self.socket_thread = slthreads.SlSocketThread()
         self.challenge_thread = slthreads.ChallengeThread()
 
-        self.matchmaking_thread.qt_print.connect(qt_print)
-        self.socket_thread.qt_print.connect(qt_print)
+        self.matchmaking_thread.qt_print.connect(self.print)
+        self.socket_thread.qt_print.connect(self.print)
         self.socket_thread.entered_match.connect(self.entered_match)
-        self.challenge_thread.qt_print.connect(qt_print)
+        self.challenge_thread.qt_print.connect(self.print)
+
+
+    def print(self, text):
+        self.matchmaking_info.append('| ' + text)
+        QApplication.processEvents()
+        self.repaint()
 
 
     def login(self):
@@ -441,16 +441,16 @@ class MainWindow(MovableQWidget):
             self.logged_in_label.hide()
             self.logout_button.hide()
         except Exception as e:
-            qt_print('Could not delete cookie file: {}'.format(e))
+            self.print('Could not delete cookie file: {}'.format(e))
 
 
     def start_matchmaking(self):
         if not hasattr(self, 'cookie_jar') or not self.cookie_jar:
-            qt_print('Log in to matchmake')
+            self.print('Log in to matchmake')
             return
 
         if not builtins.idle:
-            qt_print('Already matchmaking, can\'t start matchmaking')
+            self.print('Already matchmaking, can\'t start matchmaking')
             return
 
         builtins.idle = False
@@ -460,15 +460,15 @@ class MainWindow(MovableQWidget):
             self.socket_thread.start()
 
         qt_change_status(MMStatus.IN_QUEUE)
-        qt_print('Successfully started matchmaking')
+        self.print('Successfully started matchmaking')
 
 
     def quit_matchmaking(self):
         if builtins.idle and not builtins.in_match:
-            qt_print('Already idle, can\'t quit matcmaking')
+            self.print('Already idle, can\'t quit matcmaking')
             return
 
-        qt_print('Quitting matchmaking..')
+        self.print('Quitting matchmaking..')
 
         builtins.idle = True
         self.matchmaking_thread.wait()
@@ -478,7 +478,7 @@ class MainWindow(MovableQWidget):
         if builtins.search_match_id:
             quit_queue = sl.quit_matchmaking(self.cookie_jar, builtins.search_match_id)
             if quit_queue:
-                qt_print('Successfully unqueued match with id: ' + builtins.search_match_id)
+                self.print('Successfully unqueued match with id: ' + builtins.search_match_id)
         elif builtins.in_match:
             sl.report_friendly_done(self.cookie_jar, builtins.current_match_id)
             sl.finished_chatting_with_match(self.cookie_jar, builtins.current_match_id)
@@ -489,7 +489,7 @@ class MainWindow(MovableQWidget):
         builtins.in_match = False
         builtins.idle = True
         qt_change_status(MMStatus.IDLE)
-        qt_print('Successfully quit matchmaking')
+        self.print('Successfully quit matchmaking')
 
 
     def entered_match(self, match_id, opponent_username, opponent_country):
@@ -508,7 +508,7 @@ class MainWindow(MovableQWidget):
             self.challenge_thread.terminate()
 
         QSound.play('static/challenger.wav')
-        qt_print('Entered match: ' + match_id)
+        self.print('Entered match: ' + match_id)
         qt_change_status(MMStatus.IN_MATCH)
         self.centralWidget.hide()
         self.match_window.show()
@@ -635,10 +635,13 @@ class MainWindow(MovableQWidget):
 
 
     def quit_existing_match(self):
-        match_id = sl.fetch_existing_match(self.cookie_jar)
-        if match_id:
-            sl.report_friendly_done(self.cookie_jar, match_id)
-            sl.finished_chatting_with_match(self.cookie_jar, match_id)
+        try:
+            match_id = sl.fetch_existing_match(self.cookie_jar)
+            if match_id:
+                sl.report_friendly_done(self.cookie_jar, match_id)
+                sl.finished_chatting_with_match(self.cookie_jar, match_id)
+        except slexceptions.RequestTimeoutException as e:
+            self.print(str(e))
 
 
 app = QApplication(sys.argv)

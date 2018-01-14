@@ -389,6 +389,13 @@ class MainWindow(MovableQWidget):
         self.repaint()
 
 
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+
     def change_status(self, status):
         if status == MMStatus.IDLE:
             self.mm_status.setText('Idle')
@@ -514,13 +521,6 @@ class MainWindow(MovableQWidget):
         self.match_window.hide()
         self.centralWidget.show()
         QApplication.restoreOverrideCursor()
-
-
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
 
 
     def change_checkbox_config(self):

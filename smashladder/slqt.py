@@ -25,13 +25,6 @@ MATCH_UI_FILE = 'static/match.ui'
 PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
 
 
-def move_widget(widget, x_center, y_center):
-    qr = widget.frameGeometry()
-    center = QPoint(x_center, y_center)
-    qr.moveCenter(center)
-    widget.move(qr.topLeft())
-
-
 class MMStatus(enum.Enum):
     IDLE = 1
     IN_QUEUE = 2

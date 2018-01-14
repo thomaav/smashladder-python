@@ -464,6 +464,7 @@ class MainWindow(MovableQWidget):
 
 
     def quit_matchmaking(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         if builtins.idle and not builtins.in_match:
             self.print('Already idle, can\'t quit matcmaking')
             return
@@ -490,6 +491,7 @@ class MainWindow(MovableQWidget):
         builtins.idle = True
         self.change_status(MMStatus.IDLE)
         self.print('Successfully quit matchmaking')
+        QApplication.restoreOverrideCursor()
 
 
     def entered_match(self, match_id, opponent_username, opponent_country):

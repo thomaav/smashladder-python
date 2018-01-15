@@ -559,10 +559,20 @@ class MainWindow(MovableQWidget):
 
         if active_searches:
             self.print('--Active searches--')
+            match_searches = []
             for match_id in active_searches:
                 username = active_searches[match_id]['username']
                 country = active_searches[match_id]['country']
-                self.print(username + ' from ' + country)
+                is_ranked = active_searches[match_id]['is_ranked']
+
+                print_str = username + ' from ' + country
+                if is_ranked:
+                    print_str = print_str + ' ' + '(ranked)'
+                match_searches.append(print_str)
+
+            # simple way to sort the strings on usernames
+            for match_str in sorted(match_searches):
+                self.print(match_str)
 
 
     def entered_match(self, match_id, opponent_username, opponent_country):

@@ -339,6 +339,8 @@ class MainWindow(MovableQWidget):
 
         self.mm_button.clicked.connect(self.start_matchmaking)
         self.quit_mm_button.clicked.connect(self.quit_matchmaking)
+        self.fetch_active_matches_button.setIcon(QIcon('static/down-arrow.png'))
+        self.fetch_active_matches_button.clicked.connect(self.fetch_active_matches)
 
         self.whitelist_country_button.clicked.connect(self.whitelist_country_wrapper)
         self.whitelist_country.returnPressed.connect(self.whitelist_country_wrapper)
@@ -533,6 +535,23 @@ class MainWindow(MovableQWidget):
         builtins.idle = True
         self.change_status(MMStatus.IDLE)
         self.print('Successfully quit matchmaking')
+        QApplication.restoreOverrideCursor()
+
+
+    def fetch_active_matches(self):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+
+        try:
+            active_searches = sl.retrieve_active_searches(self.cookie_jar)
+        except slexceptions.RequestTimeoutException as e:
+            self.print('Timed out while fetching active searches')
+
+        if active_searches:
+            for match_id in active_searches:
+                username = active_searches[match_id]['username']
+                country = active_searches[match_id]['country']
+                self.print(username + ' from ' + country)
+
         QApplication.restoreOverrideCursor()
 
 

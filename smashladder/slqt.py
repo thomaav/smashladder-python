@@ -740,7 +740,8 @@ class MainWindow(MovableQWidget):
         self.config_info.verticalScrollBar().setValue(0)
 
 
-    def quit_existing_match(self):
+    @loading
+    def quit_existing_match(self, _=None):
         try:
             match_id = sl.fetch_existing_match(self.cookie_jar)
             if match_id:

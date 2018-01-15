@@ -52,7 +52,7 @@
   <widget class="QPushButton" name="refresh_match_chat_button">
    <property name="geometry">
     <rect>
-     <x>550</x>
+     <x>557</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -65,7 +65,7 @@
   <widget class="QPushButton" name="toggle_preferred_button">
    <property name="geometry">
     <rect>
-     <x>550</x>
+     <x>557</x>
      <y>300</y>
      <width>31</width>
      <height>31</height>

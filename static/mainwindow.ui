@@ -359,8 +359,8 @@
    <widget class="QPushButton" name="list_preferred_players_button">
     <property name="geometry">
      <rect>
-      <x>345</x>
-      <y>280</y>
+      <x>559</x>
+      <y>324</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -372,7 +372,7 @@
    <widget class="QPushButton" name="fetch_active_matches_button">
     <property name="geometry">
      <rect>
-      <x>300</x>
+      <x>307</x>
       <y>80</y>
       <width>31</width>
       <height>31</height>

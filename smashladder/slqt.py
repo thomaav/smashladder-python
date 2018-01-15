@@ -11,7 +11,8 @@ import enum
 import threading
 from functools import wraps
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
-    QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
+    QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit, \
+    QAbstractScrollArea
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
     QTextFormat, QCursor
 from PyQt5.QtMultimedia import QSound
@@ -421,6 +422,11 @@ class MainWindow(MovableQWidget):
         self.socket_thread.private_message.connect(self.priv_chat_window.print)
         self.priv_chat_window.close_button.clicked.connect(lambda: self.priv_chat_window.hide())
         self.priv_chat_label.mousePressEvent = (lambda _: self.priv_chat_window.show())
+
+        self.matchmaking_info.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.config_info.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.match_window.match_info.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.priv_chat_window.priv_chat_info.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
 
     def init_threads(self):

@@ -552,6 +552,7 @@ class MainWindow(MovableQWidget):
             self.print('Timed out while fetching active searches')
 
         if active_searches:
+            self.print('--Active searches--')
             for match_id in active_searches:
                 username = active_searches[match_id]['username']
                 country = active_searches[match_id]['country']

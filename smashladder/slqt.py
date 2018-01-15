@@ -559,12 +559,15 @@ class MainWindow(MovableQWidget):
             return
 
         if active_searches:
-            self.print('--Active searches--')
+            self.print('--Active whitelisted searches--')
             match_searches = []
             for match_id in active_searches:
                 username = active_searches[match_id]['username']
                 country = active_searches[match_id]['country']
                 is_ranked = active_searches[match_id]['is_ranked']
+
+                if country not in local.WHITELISTED_COUNTRIES:
+                    continue
 
                 print_str = username + ' from ' + country
                 if is_ranked:

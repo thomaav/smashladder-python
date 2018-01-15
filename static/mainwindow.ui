@@ -359,8 +359,8 @@
    <widget class="QPushButton" name="list_preferred_players_button">
     <property name="geometry">
      <rect>
-      <x>570</x>
-      <y>320</y>
+      <x>345</x>
+      <y>155</y>
       <width>31</width>
       <height>31</height>
      </rect>

@@ -9,6 +9,7 @@ import os.path
 import time
 import enum
 import threading
+from functools import wraps
 from PyQt5.QtWidgets import QApplication, QWidget, QToolTip, QPushButton, \
     QDesktopWidget, QLineEdit, QFormLayout, QMainWindow, QLabel, QTextEdit
 from PyQt5.QtGui import QIcon, QFont, QTextCharFormat, QBrush, QColor, QTextCursor, \
@@ -23,6 +24,16 @@ MAINWINDOW_CSS_FILE = 'static/mainwindow.css'
 QDOCUMENT_CSS_FILE = 'static/qdocument.css'
 MATCH_UI_FILE = 'static/match.ui'
 PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
+
+
+def loading(func):
+    @wraps(func)
+    def wrapper(*args):
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        output = func(*args)
+        QApplication.restoreOverrideCursor()
+        return output
+    return wrapper
 
 
 class MMStatus(enum.Enum):
@@ -215,9 +226,8 @@ class MatchWindow(QWidget):
             self.toggle_preferred_button.setIcon(QIcon('static/plus.png'))
 
 
-    def refresh_match_chat(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-
+    @loading
+    def refresh_match_chat(self, _=None):
         self.clear()
         self.print('Refreshing match messages..')
         QApplication.processEvents()
@@ -226,8 +236,6 @@ class MatchWindow(QWidget):
         match_messages = sl.fetch_match_messages(main_window.cookie_jar)
         for message in match_messages:
             self.print(message['username'] + ': ' + message['message'])
-
-        QApplication.restoreOverrideCursor()
 
 
 class LoginWindow(QWidget):
@@ -507,8 +515,8 @@ class MainWindow(MovableQWidget):
         self.print('Successfully started matchmaking')
 
 
-    def quit_matchmaking(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+    @loading
+    def quit_matchmaking(self, _=None):
         if builtins.idle and not builtins.in_match:
             self.print('Already idle, can\'t quit matcmaking')
             return
@@ -535,12 +543,9 @@ class MainWindow(MovableQWidget):
         builtins.idle = True
         self.change_status(MMStatus.IDLE)
         self.print('Successfully quit matchmaking')
-        QApplication.restoreOverrideCursor()
 
-
-    def fetch_active_matches(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-
+    @loading
+    def fetch_active_matches(self, _=None):
         try:
             active_searches = sl.retrieve_active_searches(self.cookie_jar)
         except slexceptions.RequestTimeoutException as e:
@@ -551,8 +556,6 @@ class MainWindow(MovableQWidget):
                 username = active_searches[match_id]['username']
                 country = active_searches[match_id]['country']
                 self.print(username + ' from ' + country)
-
-        QApplication.restoreOverrideCursor()
 
 
     def entered_match(self, match_id, opponent_username, opponent_country):
@@ -581,11 +584,10 @@ class MainWindow(MovableQWidget):
         self.match_window.setFocus()
 
 
-    def quit_match(self):
-        QApplication.setOverrideCursor(Qt.WaitCursor)
+    @loading
+    def quit_match(self, _=None):
         self.match_window.hide()
         self.centralWidget.show()
-        QApplication.restoreOverrideCursor()
 
 
     def change_checkbox_config(self):

@@ -556,6 +556,7 @@ class MainWindow(MovableQWidget):
             active_searches = sl.retrieve_active_searches(self.cookie_jar)
         except slexceptions.RequestTimeoutException as e:
             self.print('Timed out while fetching active searches')
+            return
 
         if active_searches:
             self.print('--Active searches--')
@@ -567,8 +568,11 @@ class MainWindow(MovableQWidget):
 
                 print_str = username + ' from ' + country
                 if is_ranked:
-                    print_str = print_str + ' ' + '(ranked)'
-                match_searches.append(print_str)
+                    if sl.ranked_enabled:
+                        print_str = print_str + ' ' + '(ranked)'
+                        match_searches.append(print_str)
+                else:
+                    match_searches.append(print_str)
 
             # simple way to sort the strings on usernames
             for match_str in sorted(match_searches):

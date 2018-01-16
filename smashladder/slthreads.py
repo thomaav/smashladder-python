@@ -101,11 +101,20 @@ class SlSocketThread(SlBaseThread):
         if not search_info:
             return
 
-        username, opponent_id, match_id = search_info
+        username = search_info['opponent_username']
+        opponent_id = search_info['opponent_id']
+        opponent_country = search_info['opponent_country']
+        match_id = search_info['match_id']
+
         if username in PREFERRED_PLAYERS:
             self.qt_print.emit(username + ' (' +  str(opponent_id) + ')' +
                                ', preferred player, queued up: ' + match_id)
             self.preferred_queued.emit()
+            return
+
+        if sl.player_relevant(opponent_country, username):
+            self.qt_print.emit(username + ' (' + str(opponent_id) + ')' +
+                               ' queued up: ' + match_id)
 
 
     def on_message(self, ws, raw_message):

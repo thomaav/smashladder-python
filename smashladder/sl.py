@@ -329,7 +329,11 @@ def get_search_player(message):
             match = message['searches'][match_id]
             opponent_username = match['player1']['username']
             opponent_id = match['player1']['id']
-            return opponent_username, opponent_id, match_id
+            opponent_country = match['player1']['location']['country']['name']
+            return { 'opponent_username': opponent_username,
+                     'opponent_id': opponent_id,
+                     'opponent_country': opponent_country,
+                     'match_id': match_id }
 
 
 def process_new_search(cookie_jar, message, own_username):

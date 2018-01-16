@@ -318,7 +318,7 @@ def process_open_challenges(cookie_jar, message):
              'opponent_country': None }
 
 
-def get_search_player(message):
+def get_search_info(message):
     message = json.loads(message)
 
     for match_id in message['searches']:
@@ -330,9 +330,11 @@ def get_search_player(message):
             opponent_username = match['player1']['username']
             opponent_id = match['player1']['id']
             opponent_country = match['player1']['location']['country']['name']
+            is_ranked = match['is_ranked']
             return { 'opponent_username': opponent_username,
                      'opponent_id': opponent_id,
                      'opponent_country': opponent_country,
+                     'is_ranked': is_ranked,
                      'match_id': match_id }
 
 

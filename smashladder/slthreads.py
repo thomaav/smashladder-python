@@ -97,14 +97,19 @@ class SlSocketThread(SlBaseThread):
 
 
     def check_search_preferred_player(self, raw_message):
-        search_info = sl.get_search_player(raw_message)
+        search_info = sl.get_search_info(raw_message)
         if not search_info:
             return
 
         username = search_info['opponent_username']
         opponent_id = search_info['opponent_id']
         opponent_country = search_info['opponent_country']
+        is_ranked = search_info['is_ranked']
         match_id = search_info['match_id']
+
+        # wrong way to do this, main_window contains enabled setting
+        if is_ranked:
+            return
 
         if username in PREFERRED_PLAYERS:
             self.qt_print.emit(username + ' (' +  str(opponent_id) + ')' +

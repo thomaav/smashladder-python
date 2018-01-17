@@ -401,9 +401,7 @@ def opponent_uses_active_build(match):
 
 
 def match_is_doubles(match):
-    if match['team_size'] == 2:
-        return True
-    return False
+    return match['team_size'] == 2
 
 
 def match_relevant(match=None, is_ranked=None):

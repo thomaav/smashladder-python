@@ -329,7 +329,7 @@ class MainWindow(MovableQWidget):
         super().__init__(parent)
         self.init_threads()
         self.initUI()
-        self.closeEvent = (lambda self: app.quit())
+        self.closeEvent = self.close_event
 
 
     def initUI(self):
@@ -384,6 +384,7 @@ class MainWindow(MovableQWidget):
         self.config_info.mouseMoveEvent = (self.highlight_config_line)
         self.config_info.mousePressEvent = (self.delete_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
+        self.config_info.setContextMenuPolicy(Qt.NoContextMenu)
 
         self.matchmaking_info.mousePressEvent = (self.click_username)
         with open(QDOCUMENT_CSS_FILE) as f:
@@ -439,6 +440,11 @@ class MainWindow(MovableQWidget):
         self.socket_thread.entered_match.connect(self.entered_match)
         self.socket_thread.preferred_queued.connect(lambda: QSound.play('static/tutturuu.wav'))
         self.challenge_thread.qt_print.connect(self.print)
+
+
+    def close_event(self, evt):
+        local.remove_tmp_blacklisted()
+        app.quit()
 
 
     def print(self, text):
@@ -676,16 +682,24 @@ class MainWindow(MovableQWidget):
         cur.select(QTextCursor.LineUnderCursor)
         selected_text = cur.selectedText()
 
-        config_info_title = self.config_info.toPlainText()[:9]
-        if config_info_title == 'Blacklist':
-            local.remove_blacklisted_player(selected_text)
-            self.list_blacklisted_players_button.click()
-        elif config_info_title == 'Whitelist':
-            local.remove_whitelisted_country(selected_text)
-            self.list_whitelisted_countries_button.click()
-        elif config_info_title == 'Preferred':
-            local.remove_preferred_player(selected_text)
-            self.list_preferred_players_button.click()
+        if (evt.button() == 1):
+            config_info_title = self.config_info.toPlainText()[:9]
+            if config_info_title == 'Blacklist':
+                local.remove_blacklisted_player(selected_text)
+                self.list_blacklisted_players_button.click()
+            elif config_info_title == 'Whitelist':
+                local.remove_whitelisted_country(selected_text)
+                self.list_whitelisted_countries_button.click()
+            elif config_info_title == 'Preferred':
+                local.remove_preferred_player(selected_text)
+                self.list_preferred_players_button.click()
+        elif (evt.button() == 2):
+            config_info_title = self.config_info.toPlainText()[:9]
+            username = selected_text.split(' ')[0]
+            if config_info_title == 'Blacklist' and \
+               username not in local.TMP_BLACKLISTED_PLAYERS:
+                local.tmp_blacklist_player(username)
+                cur.insertText(username + ' (tmp)')
 
 
     def click_username(self, evt):

@@ -44,6 +44,8 @@ if os.path.isfile(PREFERRED_PLAYERS_FILE):
 else:
     PREFERRED_PLAYERS = []
 
+TMP_BLACKLISTED_PLAYERS = []
+
 
 def dump_whitelisted_countries():
     with open(WHITELISTED_COUNTRIES_FILE, 'wb') as f:
@@ -97,6 +99,22 @@ def remove_preferred_player(player):
 
     PREFERRED_PLAYERS.remove(player)
     dump_preferred_players()
+
+
+def tmp_blacklist_player(player):
+    if player not in BLACKLISTED_PLAYERS or \
+       player in TMP_BLACKLISTED_PLAYERS:
+        return
+
+    TMP_BLACKLISTED_PLAYERS.append(player)
+
+
+def remove_tmp_blacklisted():
+    for player in TMP_BLACKLISTED_PLAYERS:
+        if player in BLACKLISTED_PLAYERS:
+            BLACKLISTED_PLAYERS.remove(player)
+
+    dump_blacklisted_players()
 
 
 WHITELISTED_GAMES = { 'Melee': '2', }

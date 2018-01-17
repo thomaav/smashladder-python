@@ -559,7 +559,7 @@ class MainWindow(MovableQWidget):
             return
 
         if active_searches:
-            self.print('--Active whitelisted searches--')
+            self.print('<span style="color: green">--Active whitelisted searches--</span>')
             match_searches = []
             for match_id in active_searches:
                 username = active_searches[match_id]['username']

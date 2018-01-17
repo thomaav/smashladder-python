@@ -35,6 +35,7 @@ class SlSocketThread(SlBaseThread):
     match_message = pyqtSignal(str)
     private_message = pyqtSignal(str)
     preferred_queued = pyqtSignal()
+    match_done = pyqtSignal()
 
     def __init__(self, cookie_jar=None, parent=None):
         super().__init__(cookie_jar, parent)
@@ -159,6 +160,8 @@ class SlSocketThread(SlBaseThread):
                     except Exception as e:
                         print(raw_message)
                         print(e)
+                elif 'disputed_matches' in raw_message:
+                    self.match_done.emit()
 
             if 'private_chat' in raw_message and self.priv_chat_enabled:
                 self.process_private_chat_message(raw_message)

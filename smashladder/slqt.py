@@ -419,6 +419,8 @@ class MainWindow(MovableQWidget):
         self.match_window = MatchWindow(self, self)
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
         self.socket_thread.match_message.connect(self.match_window.print_match_message)
+        self.socket_thread.match_done.connect(lambda: self.match_window.print(
+            '<span style="color: red">Opponent has quit the match</span>'))
         self.match_window.quit_match_button.clicked.connect(self.quit_match)
         self.match_window.move(self.width() / 2 - self.match_window.width() / 2,
                                self.height() / 2 - self.match_window.height() / 2)

@@ -175,6 +175,11 @@ class MatchWindow(QWidget):
         self.match_info.append('| ' + text)
 
 
+    def print_match_message(self, text):
+        QSound.play('static/matchmessage.wav')
+        self.print(text)
+
+
     def clear(self):
         self.match_info.clear()
 
@@ -413,7 +418,7 @@ class MainWindow(MovableQWidget):
 
         self.match_window = MatchWindow(self, self)
         self.match_window.match_input.returnPressed.connect(self.match_window.send_message)
-        self.socket_thread.match_message.connect(self.match_window.print)
+        self.socket_thread.match_message.connect(self.match_window.print_match_message)
         self.match_window.quit_match_button.clicked.connect(self.quit_match)
         self.match_window.move(self.width() / 2 - self.match_window.width() / 2,
                                self.height() / 2 - self.match_window.height() / 2)

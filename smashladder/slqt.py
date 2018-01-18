@@ -704,7 +704,8 @@ class MainWindow(MovableQWidget):
             config_info_title = self.config_info.toPlainText()[:9]
             username = selected_text.split(' ')[0]
             if config_info_title == 'Blacklist' and \
-               username not in local.TMP_BLACKLISTED_PLAYERS:
+               username not in local.TMP_BLACKLISTED_PLAYERS and \
+               'Blacklisted' not in username and '--' not in username:
                 local.tmp_blacklist_player(username)
                 cur.insertText(username + ' (tmp)')
 

@@ -690,6 +690,7 @@ class MainWindow(MovableQWidget):
         selected_text = cur.selectedText()
 
         if (evt.button() == 1):
+            username = selected_text.split(' ')[0]
             config_info_title = self.config_info.toPlainText()[:9]
             if config_info_title == 'Blacklist':
                 local.remove_blacklisted_player(selected_text)
@@ -708,6 +709,9 @@ class MainWindow(MovableQWidget):
                'Blacklisted' not in username and '--' not in username:
                 local.tmp_blacklist_player(username)
                 cur.insertText(username + ' (tmp)')
+            elif '(tmp)' in selected_text:
+                local.TMP_BLACKLISTED_PLAYERS.remove(username)
+                self.list_blacklisted_players_button.click()
 
 
     def click_username(self, evt):
@@ -738,7 +742,10 @@ class MainWindow(MovableQWidget):
         self.config_info.append('------------------------')
 
         for player in sorted(local.BLACKLISTED_PLAYERS):
-            self.config_info.append(player)
+            player_text = player
+            if player in local.TMP_BLACKLISTED_PLAYERS:
+                player_text += ' (tmp)'
+            self.config_info.append(player_text)
 
         self.config_info.verticalScrollBar().setValue(0)
 

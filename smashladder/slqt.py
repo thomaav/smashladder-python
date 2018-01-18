@@ -52,6 +52,9 @@ class MovableQWidget(QWidget):
         self.mouseMoveEvent = (self.mouse_move)
 
     def mouse_press(self, evt):
+        if (evt.button() == 2):
+            return
+
         cursor = QCursor()
         pos = cursor.pos()
         geometry = self.geometry()
@@ -64,6 +67,9 @@ class MovableQWidget(QWidget):
 
 
     def mouse_release(self, evt):
+        if (evt.button() == 2):
+            return
+
         self.mpressed = False
 
 
@@ -708,7 +714,7 @@ class MainWindow(MovableQWidget):
                username not in local.TMP_BLACKLISTED_PLAYERS and \
                'Blacklisted' not in username and '--' not in username:
                 local.tmp_blacklist_player(username)
-                cur.insertText(username + ' (tmp)')
+                cur.insertHtml(username + ' (tmp)')
             elif '(tmp)' in selected_text:
                 local.TMP_BLACKLISTED_PLAYERS.remove(username)
                 self.list_blacklisted_players_button.click()

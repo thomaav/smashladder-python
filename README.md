@@ -45,10 +45,10 @@ immediately.
 
 ### Idling
 
-The application will always show when someone that you would otherwise
-be challenging if you were running the script by printing this to the
-main window, so that you can start playing if you see someone you
-like.
+The application will always show when someone queues up that you would
+otherwise be challenging if you were running the script, by printing
+information to the main window. This way you can start playing if you
+see someone you like.
 
 
 ### Private chat

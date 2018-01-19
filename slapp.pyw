@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 
+import sys
+import os
+
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
 import builtins
 import smashladder.slqt as slqt
-import sys
 import time
 
 

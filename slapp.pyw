@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import builtins
 import smashladder.slqt as slqt
 import sys

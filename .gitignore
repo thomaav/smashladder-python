@@ -5,3 +5,4 @@ __pycache__
 conf/whitelisted_countries
 conf/blacklisted_players
 conf/high_ping_players
+conf/preferred_players

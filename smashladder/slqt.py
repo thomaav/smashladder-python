@@ -729,7 +729,7 @@ class MainWindow(MovableQWidget):
             username = selected_line.strip().split(' ')[3].replace(':', '')
             self.priv_chat_window.change_user(username)
             self.priv_chat_window.show()
-        elif 'preferred player' in selected_line:
+        elif 'queued up' in selected_line:
             processed_line = (selected_line.strip()[2:]).split(' ')
             username = processed_line[0].replace(',', '')
             user_id = processed_line[1][1:-2]
@@ -739,7 +739,7 @@ class MainWindow(MovableQWidget):
                 sl.challenge_opponent(self.cookie_jar, user_id, match_id)
             thr = threading.Thread(target=async_challenge, args=(), kwargs={})
             thr.start()
-            self.print('Challenging preferred player ' + username)
+            self.print('Challenging player ' + username)
 
 
     def list_blacklisted_players(self):

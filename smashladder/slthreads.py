@@ -120,6 +120,7 @@ class SlSocketThread(SlBaseThread):
 
         if sl.player_relevant(opponent_country, username):
             self.qt_print.emit(username + ' (' + str(opponent_id) + ')' +
+                               ' from ' + opponent_country +
                                ' queued up: ' + match_id)
 
 

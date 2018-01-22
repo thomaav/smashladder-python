@@ -696,16 +696,16 @@ class MainWindow(MovableQWidget):
         selected_text = cur.selectedText()
 
         if (evt.button() == 1):
-            username = selected_text.split(' ')[0]
             config_info_title = self.config_info.toPlainText()[:9]
+            username = selected_text.split(' ')[0]
             if config_info_title == 'Blacklist':
-                local.remove_blacklisted_player(selected_text)
+                local.remove_blacklisted_player(username)
                 self.list_blacklisted_players_button.click()
             elif config_info_title == 'Whitelist':
-                local.remove_whitelisted_country(selected_text)
+                local.remove_whitelisted_country(username)
                 self.list_whitelisted_countries_button.click()
             elif config_info_title == 'Preferred':
-                local.remove_preferred_player(selected_text)
+                local.remove_preferred_player(username)
                 self.list_preferred_players_button.click()
         elif (evt.button() == 2):
             config_info_title = self.config_info.toPlainText()[:9]

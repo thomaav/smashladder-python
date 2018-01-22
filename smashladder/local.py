@@ -77,6 +77,14 @@ def prefer_player(player):
     dump_preferred_players()
 
 
+def tmp_blacklist_player(player):
+    if player not in BLACKLISTED_PLAYERS or \
+       player in TMP_BLACKLISTED_PLAYERS:
+        return
+
+    TMP_BLACKLISTED_PLAYERS.append(player)
+
+
 def remove_whitelisted_country(country):
     if country not in WHITELISTED_COUNTRIES:
         return
@@ -101,12 +109,11 @@ def remove_preferred_player(player):
     dump_preferred_players()
 
 
-def tmp_blacklist_player(player):
-    if player not in BLACKLISTED_PLAYERS or \
-       player in TMP_BLACKLISTED_PLAYERS:
+def remove_tmp_blacklisted_player(player):
+    if player not in TMP_BLACKLISTED_PLAYERS:
         return
 
-    TMP_BLACKLISTED_PLAYERS.append(player)
+    TMP_BLACKLISTED_PLAYERS.remove(player)
 
 
 def remove_tmp_blacklisted():

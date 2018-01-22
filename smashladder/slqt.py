@@ -393,7 +393,7 @@ class MainWindow(MovableQWidget):
         self.blacklist_player_tooltip.setToolTip(blacklist_player_tooltip)
 
         self.config_info.mouseMoveEvent = (self.highlight_config_line)
-        self.config_info.mousePressEvent = (self.delete_config)
+        self.config_info.mousePressEvent = (self.update_config)
         self.config_info.setLineWrapMode(QTextEdit.NoWrap)
         self.config_info.setContextMenuPolicy(Qt.NoContextMenu)
 
@@ -689,7 +689,7 @@ class MainWindow(MovableQWidget):
         cur.mergeCharFormat(format)
 
 
-    def delete_config(self, evt):
+    def update_config(self, evt):
         self.reset_config_info_highlighting()
         cur = self.config_info.cursorForPosition(evt.pos())
         cur.select(QTextCursor.LineUnderCursor)
@@ -710,14 +710,21 @@ class MainWindow(MovableQWidget):
         elif (evt.button() == 2):
             config_info_title = self.config_info.toPlainText()[:9]
             username = selected_text.split(' ')[0]
+
+            if 'Blacklisted' in username or '--' in username:
+                return
+
             if config_info_title == 'Blacklist' and \
-               username not in local.TMP_BLACKLISTED_PLAYERS and \
-               'Blacklisted' not in username and '--' not in username:
+               username not in local.TMP_BLACKLISTED_PLAYERS:
                 local.tmp_blacklist_player(username)
                 cur.insertHtml(username + ' (tmp)')
             elif '(tmp)' in selected_text:
                 local.TMP_BLACKLISTED_PLAYERS.remove(username)
                 self.list_blacklisted_players_button.click()
+            elif 'added to blacklist' in selected_text and \
+                 username not in local.TMP_BLACKLISTED_PLAYERS:
+                local.tmp_blacklist_player(username)
+                cur.insertHtml(username + ' temporarily blacklisted')
 
 
     def click_username(self, evt):

@@ -166,7 +166,7 @@ class SlSocketThread(SlBaseThread):
 
 
     def on_close(self, ws):
-        pass
+        self.qt_print.emit("Connection to Smashladder lost")
 
 
     def run(self):

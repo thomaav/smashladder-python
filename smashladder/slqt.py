@@ -1,3 +1,4 @@
+
 import builtins
 import sys
 import smashladder.local as local
@@ -30,8 +31,11 @@ PRIV_CHAT_UI_FILE = 'static/private_chat.ui'
 def loading(func):
     @wraps(func)
     def wrapper(*args):
+        self = args[0]
+        self.setEnabled(False)
         QApplication.setOverrideCursor(Qt.WaitCursor)
         output = func(*args)
+        self.setEnabled(True)
         QApplication.restoreOverrideCursor()
         return output
     return wrapper

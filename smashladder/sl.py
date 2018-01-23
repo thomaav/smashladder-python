@@ -127,6 +127,11 @@ def retrieve_relevant_searches(cookie_jar):
     for match_id in active_searches:
         country = active_searches[match_id]['country']
         username = active_searches[match_id]['username']
+        ladder_name = active_searches[match_id]['ladder_name']
+
+        if ladder_name != 'Melee':
+            print(ladder_name)
+
         if player_relevant(country, username):
             relevant_searches[match_id] = active_searches[match_id]
 
@@ -295,7 +300,7 @@ def process_open_challenges(cookie_jar, message):
 
     for i, country in enumerate(opponent_country):
         if player_relevant(country, opponent_username[i]) and \
-           match_relevant(is_ranked=is_ranked[i]):
+           match_relevant(is_ranked=is_ranked[i], ladder_name=ladder_name[i]):
             if not builtins.debug_smashladder:
                 accept_match_challenge(cookie_jar, match_ids[i])
             else:
@@ -331,10 +336,12 @@ def get_search_info(message):
             opponent_id = match['player1']['id']
             opponent_country = match['player1']['location']['country']['name']
             is_ranked = match['is_ranked']
+            ladder_name = match['ladder_name']
             return { 'opponent_username': opponent_username,
                      'opponent_id': opponent_id,
                      'opponent_country': opponent_country,
                      'is_ranked': is_ranked,
+                     'ladder_name': ladder_name,
                      'match_id': match_id }
 
 
@@ -404,9 +411,13 @@ def match_is_doubles(match):
     return match['team_size'] == 2
 
 
-def match_relevant(match=None, is_ranked=None):
+def match_relevant(match=None, is_ranked=None, ladder_name=None):
     if match:
         is_ranked = match['is_ranked']
+        ladder_name = match['ladder_name']
+
+    if ladder_name != 'Melee':
+        return False
 
     if not is_ranked and friendlies_enabled:
         return True

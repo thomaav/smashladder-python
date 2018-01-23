@@ -106,10 +106,11 @@ class SlSocketThread(SlBaseThread):
         opponent_id = search_info['opponent_id']
         opponent_country = search_info['opponent_country']
         is_ranked = search_info['is_ranked']
+        ladder_name = search_info['ladder_name']
         match_id = search_info['match_id']
 
         # wrong way to do this, main_window contains enabled setting
-        if is_ranked:
+        if is_ranked or ladder_name != 'Melee':
             return
 
         if username in PREFERRED_PLAYERS:

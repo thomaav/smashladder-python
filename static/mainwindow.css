@@ -57,7 +57,8 @@ QCheckBox::indicator:checked {
 #refresh_match_chat_button,
 #list_preferred_players_button,
 #toggle_preferred_button,
-#fetch_active_matches_button {
+#fetch_active_matches_button,
+#clear_config_info_button {
     background: rgba(0, 0, 0, 0);
     border: none;
 }

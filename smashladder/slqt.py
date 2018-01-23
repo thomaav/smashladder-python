@@ -373,6 +373,7 @@ class MainWindow(MovableQWidget):
         self.list_blacklisted_players_button.clicked.connect(self.list_blacklisted_players)
         self.list_whitelisted_countries_button.clicked.connect(self.list_whitelisted_countries)
         self.list_preferred_players_button.clicked.connect(self.list_preferred_players)
+        self.clear_config_info_button.clicked.connect(lambda: self.config_info.clear())
 
         whitelist_country_tooltip = \
         """

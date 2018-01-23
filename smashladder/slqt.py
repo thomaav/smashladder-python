@@ -312,6 +312,7 @@ class LoginWindow(QWidget):
         self.main_window.setEnabled(True)
 
 
+    @loading
     def login(self):
         self.login_status.show()
 

@@ -16,9 +16,22 @@ builtins.idle = True
 
 current_fm_build = 'Faster Melee 5.8.7'
 melee_id = '2'
-ranked_enabled = False
-friendlies_enabled = True
-doubles_enabled = False
+
+
+class SlConfig(object):
+    def __init__(self,
+                 friendlies = True,
+                 ranked = False,
+                 doubles = False,
+                 enabled_games = { 'Melee': '2' }
+    ):
+        self.friendlies = friendlies
+        self.ranked = ranked
+        self.doubles = doubles
+        self.enabled_games = enabled_games
+
+
+active_config = SlConfig()
 
 
 class Match(object):
@@ -107,7 +120,7 @@ def retrieve_active_searches(cookie_jar):
                 continue
 
             if match_is_doubles(match) and \
-               not doubles_enabled:
+               not active_config.doubles:
                 continue
 
             country = match['player1']['location']['country']['name']
@@ -362,7 +375,7 @@ def process_new_search(cookie_jar, message, own_username):
     if not opponent_uses_active_build(new_match):
         return
 
-    if match_is_doubles(new_match) and not doubles_enabled:
+    if match_is_doubles(new_match) and not active_config.doubles:
         return
 
     if player_relevant(match.opponent_country, match.opponent_username) and \
@@ -408,10 +421,10 @@ def match_relevant(match=None, is_ranked=None, ladder_name=None):
     if ladder_name != 'Melee':
         return False
 
-    if not is_ranked and friendlies_enabled:
+    if not is_ranked and active_config.friendlies:
         return True
 
-    if is_ranked and ranked_enabled:
+    if is_ranked and active_config.ranked:
         return True
 
     return False

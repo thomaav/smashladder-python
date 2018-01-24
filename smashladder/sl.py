@@ -23,12 +23,14 @@ class SlConfig(object):
                  friendlies = True,
                  ranked = False,
                  doubles = False,
-                 enabled_games = { 'Melee': '2' }
+                 enabled_games = { 'Melee': '2' },
+                 enabled_builds = ['Faster Melee 5.8.7']
     ):
         self.friendlies = friendlies
         self.ranked = ranked
         self.doubles = doubles
         self.enabled_games = enabled_games
+        self.enabled_builds = enabled_builds
 
 
     def set_friendlies(self, val):
@@ -63,6 +65,7 @@ class Match(object):
         self.ladder_name = match['ladder_name']
         self.match_id = match['id']
         self.team_size = match['team_size']
+        self.preferred_builds = match['player1']['preferred_builds']
 
 
     def relevant(self):
@@ -71,6 +74,17 @@ class Match(object):
             return False
 
         if self.ladder_name not in active_config.enabled_games.keys():
+            return False
+
+        # walk through all preferred builds of opponent to see if we
+        # have _any_ matches across any enabled game
+        builds_match = False
+        for game in self.preferred_builds:
+            if game in active_config.enabled_games.values():
+                for build in self.preferred_builds[game]:
+                    if build['name'] in active_config.enabled_builds and build['active'] == True:
+                        builds_match = True
+        if not builds_match:
             return False
 
         # now if we match certain config, we're relevant

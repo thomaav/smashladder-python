@@ -340,14 +340,12 @@ def process_open_challenges(cookie_jar, message):
 
 def get_search_info(message):
     message = json.loads(message)
-
-    for match_id in message['searches']:
-        if re.match('[0-9]{7,9}', match_id):
-            match = Match(message['searches'][match_id])
-            if match.removed:
-                return None
-            else:
-                return match
+    new_match = next(iter(message['searches'].values()))
+    match = Match(new_match)
+    if match.removed:
+        return None
+    else:
+        return match
 
 
 def process_new_search(cookie_jar, message, own_username):

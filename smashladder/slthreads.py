@@ -97,7 +97,7 @@ class SlSocketThread(SlBaseThread):
             self.qt_print.emit('Challenging ' + player['username'] + ' from ' + player['country'])
 
 
-    def check_search_preferred_player(self, raw_message):
+    def process_new_search_idle(self, raw_message):
         match = sl.get_search_info(raw_message)
         if not match:
             return
@@ -126,7 +126,7 @@ class SlSocketThread(SlBaseThread):
 
             if builtins.idle:
                 if 'searches' in raw_message:
-                    self.check_search_preferred_player(raw_message)
+                    self.process_new_search_idle(raw_message)
                 elif 'current_matches' in raw_message and \
                      '\"all_entries\":true' not in raw_message:
                     try:

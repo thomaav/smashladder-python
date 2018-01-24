@@ -21,6 +21,21 @@ friendlies_enabled = True
 doubles_enabled = False
 
 
+class Match(object):
+    def __init__(self, match):
+        if 'is_removed' in match:
+            self.removed = True
+            return
+
+        self.removed = False
+        self.opponent_username = match['player1']['username']
+        self.opponent_id = match['player1']['id']
+        self.opponent_country = match['player1']['location']['country']['name']
+        self.is_ranked = match['is_ranked']
+        self.ladder_name = match['ladder_name']
+        self.match_id = match['id']
+
+
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
                       title, ranked, host_code):
     """
@@ -328,21 +343,11 @@ def get_search_info(message):
 
     for match_id in message['searches']:
         if re.match('[0-9]{7,9}', match_id):
-            if 'is_removed' in message['searches'][match_id]:
+            match = Match(message['searches'][match_id])
+            if match.removed:
                 return None
-
-            match = message['searches'][match_id]
-            opponent_username = match['player1']['username']
-            opponent_id = match['player1']['id']
-            opponent_country = match['player1']['location']['country']['name']
-            is_ranked = match['is_ranked']
-            ladder_name = match['ladder_name']
-            return { 'opponent_username': opponent_username,
-                     'opponent_id': opponent_id,
-                     'opponent_country': opponent_country,
-                     'is_ranked': is_ranked,
-                     'ladder_name': ladder_name,
-                     'match_id': match_id }
+            else:
+                return match
 
 
 def process_new_search(cookie_jar, message, own_username):

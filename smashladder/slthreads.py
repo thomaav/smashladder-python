@@ -98,31 +98,24 @@ class SlSocketThread(SlBaseThread):
 
 
     def check_search_preferred_player(self, raw_message):
-        search_info = sl.get_search_info(raw_message)
-        if not search_info:
+        match = sl.get_search_info(raw_message)
+        if not match:
             return
-
-        username = search_info['opponent_username']
-        opponent_id = search_info['opponent_id']
-        opponent_country = search_info['opponent_country']
-        is_ranked = search_info['is_ranked']
-        ladder_name = search_info['ladder_name']
-        match_id = search_info['match_id']
 
         # wrong way to do this, main_window contains enabled setting
-        if is_ranked or ladder_name != 'Melee':
+        if match.is_ranked or match.ladder_name != 'Melee':
             return
 
-        if username in PREFERRED_PLAYERS:
-            self.qt_print.emit(username + ' (' +  str(opponent_id) + ')' +
-                               ', preferred player, queued up: ' + match_id)
+        if match.opponent_username in PREFERRED_PLAYERS:
+            self.qt_print.emit(match.username + ' (' +  str(match.opponent_id) + ')' +
+                               ', preferred player, queued up: ' + match.match_id)
             self.preferred_queued.emit()
             return
 
-        if sl.player_relevant(opponent_country, username):
-            self.qt_print.emit(username + ' (' + str(opponent_id) + ')' +
-                               ' from ' + opponent_country +
-                               ' queued up: ' + match_id)
+        if sl.player_relevant(match.opponent_country, match.opponent_username):
+            self.qt_print.emit(match.opponent_username + ' (' + str(match.opponent_id) + ')' +
+                               ' from ' + match.opponent_country +
+                               ' queued up: ' + match.match_id)
 
 
     def on_message(self, ws, raw_message):

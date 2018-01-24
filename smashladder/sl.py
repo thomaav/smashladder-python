@@ -368,12 +368,8 @@ def process_new_search(cookie_jar, message, own_username):
     if player_relevant(match.opponent_country, match.opponent_username) and \
        match.opponent_username != own_username:
         response = challenge_opponent(cookie_jar, match.opponent_id, match.match_id)
-
-    if 'response' in locals():
         return { 'username': decorate_username(match.opponent_username),
                  'country': match.opponent_country }
-    else:
-        return None
 
 
 def report_friendly_done(cookie_jar, match_id):

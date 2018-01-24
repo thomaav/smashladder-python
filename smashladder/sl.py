@@ -87,10 +87,14 @@ class Match(object):
         if not builds_match:
             return False
 
+        # handle doubles specifically to avoid confusion in friendlies
+        # vs. ranked
+        if self.team_size == 2 and not active_config.doubles:
+            return False
+
         # now if we match certain config, we're relevant
         if (not self.is_ranked and active_config.friendlies) or \
-           (self.is_ranked and active_config.ranked) or \
-           (self.team_size == '2' and active_config.doubles):
+           (self.is_ranked and active_config.ranked):
             return True
 
         return False
@@ -413,16 +417,7 @@ def process_new_search(cookie_jar, message, own_username):
     new_match = next(iter(message['searches'].values()))
     match = Match(new_match)
 
-    if match.removed:
-        return
-
     if not match.relevant():
-        return
-
-    if not opponent_uses_active_build(new_match):
-        return
-
-    if match_is_doubles(new_match) and not active_config.doubles:
         return
 
     if player_relevant(match.opponent_country, match.opponent_username) and \

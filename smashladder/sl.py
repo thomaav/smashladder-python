@@ -145,7 +145,7 @@ def retrieve_relevant_searches(cookie_jar):
         ladder_name = active_searches[match_id]['ladder_name']
 
         if ladder_name != 'Melee':
-            print(ladder_name)
+            continue
 
         if player_relevant(country, username):
             relevant_searches[match_id] = active_searches[match_id]
@@ -350,38 +350,28 @@ def get_search_info(message):
 
 def process_new_search(cookie_jar, message, own_username):
     message = json.loads(message)
+    new_match = next(iter(message['searches'].values()))
+    match = Match(new_match)
 
-    for match_id in message['searches']:
-        if re.match('[0-9]{7,9}', match_id):
-            if 'is_removed' in message['searches'][match_id]:
-                break
+    if match.removed:
+        return
 
-            match_info = message['searches'][match_id]
-            ladder_name = match_info['ladder_name']
-            opponent_username = match_info['player1']['username']
-            opponent_country = match_info['player1']['location']['country']['name']
-            opponent_id = match_info['player1']['id']
+    if not match_relevant(new_match):
+        return
 
-            if not match_relevant(match_info):
-                break
+    if not opponent_uses_active_build(new_match):
+        return
 
-            if not opponent_uses_active_build(match_info):
-                break
+    if match_is_doubles(new_match) and not doubles_enabled:
+        return
 
-            if match_is_doubles(match_info) and \
-               not doubles_enabled:
-                break
-
-            if player_relevant(opponent_country, opponent_username) and \
-               opponent_username != own_username:
-                if not builtins.debug_smashladder:
-                    response = challenge_opponent(cookie_jar, opponent_id, match_id)
-                else:
-                    print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
+    if player_relevant(match.opponent_country, match.opponent_username) and \
+       match.opponent_username != own_username:
+        response = challenge_opponent(cookie_jar, match.opponent_id, match.match_id)
 
     if 'response' in locals():
-        return { 'username': decorate_username(opponent_username),
-                 'country': opponent_country }
+        return { 'username': decorate_username(match.opponent_username),
+                 'country': match.opponent_country }
     else:
         return None
 

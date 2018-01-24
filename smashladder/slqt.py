@@ -578,25 +578,18 @@ class MainWindow(MovableQWidget):
     @loading
     def fetch_active_matches(self, _=None):
         try:
-            active_searches = sl.retrieve_active_searches(self.cookie_jar)
+            active_searches = sl.retrieve_relevant_searches(self.cookie_jar)
         except slexceptions.RequestTimeoutException as e:
             self.print('Timed out while fetching active searches')
             return
 
         if active_searches:
-            self.print('<span style="color: green">--Active whitelisted searches--</span>')
+            self.print('<span style="color: green">--Active relevant searches--</span>')
             match_searches = []
-            for match_id in active_searches:
-                username = active_searches[match_id]['username']
-                country = active_searches[match_id]['country']
-                is_ranked = active_searches[match_id]['is_ranked']
-
-                if country not in local.WHITELISTED_COUNTRIES:
-                    continue
-
-                print_str = username + ' from ' + country
-                if is_ranked:
-                    if sl.ranked_enabled:
+            for match in active_searches:
+                print_str = match.opponent_username + ' from ' + match.opponent_country
+                if match.is_ranked:
+                    if sl.active_config.ranked:
                         print_str = print_str + ' ' + '(ranked)'
                         match_searches.append(print_str)
                 else:
@@ -605,6 +598,8 @@ class MainWindow(MovableQWidget):
             # simple way to sort the strings on usernames
             for match_str in sorted(match_searches):
                 self.print(match_str)
+        else:
+            self.print('<span style="color: red">No active relevant searches active--</span>')
 
 
     def entered_match(self, match_id, opponent_username, opponent_country):

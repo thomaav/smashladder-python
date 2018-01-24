@@ -166,62 +166,27 @@ def retrieve_active_searches(cookie_jar):
                                 cookie_jar)
     response_body = json.loads(response.text)
 
-    active_searches = dict()
-    for match_id in response_body['searches']:
-        if (re.match('[0-9]{7,9}', match_id)):
-            match = response_body['searches'][match_id]
-
-            if not opponent_uses_active_build(match):
-                continue
-
-            if match_is_doubles(match) and \
-               not active_config.doubles:
-                continue
-
-            country = match['player1']['location']['country']['name']
-            username = match['player1']['username']
-            search_time_remaining = match['search_time_remaining']
-            is_ranked = match['is_ranked']
-            player_id = match['player1']['id']
-            ladder_name = match['ladder_name']
-
-            match_info = { 'username': username,
-                           'country': country,
-                           'search_time_remaining': search_time_remaining,
-                           'is_ranked': is_ranked,
-                           'player_id': player_id,
-                           'ladder_name': ladder_name }
-            active_searches[match_id] = match_info
+    active_searches = []
+    matches = iter(response_body['searches'].values())
+    for match in matches:
+        if type(match) is dict:
+            match_obj = Match(match)
+            active_searches.append(match_obj)
 
     return active_searches
 
 
-def player_relevant(country, username):
-    if country.lower() in [c.lower() for c in WHITELISTED_COUNTRIES] \
-       and username.lower() not in [p.lower() for p in BLACKLISTED_PLAYERS]:
-        return True
-    return False
-
-
 def retrieve_relevant_searches(cookie_jar):
     active_searches = retrieve_active_searches(cookie_jar)
-
-    relevant_searches = dict()
-    for match_id in active_searches:
-        country = active_searches[match_id]['country']
-        username = active_searches[match_id]['username']
-        ladder_name = active_searches[match_id]['ladder_name']
-
-        if ladder_name != 'Melee':
-            continue
-
-        if player_relevant(country, username):
-            relevant_searches[match_id] = active_searches[match_id]
+    relevant_searches = list()
+    for match in active_searches:
+        if match.relevant():
+            relevant_searches.append(match)
 
     return relevant_searches
 
 
-def retrieve_challenges_awaiting_reply(cookie_jar):
+def retrieve_users_awaiting_reply(cookie_jar):
     response = http_get_request('https://www.smashladder.com/matchmaking/retrieve_match_searches',
                                 cookie_jar)
     response_body = json.loads(response.text)
@@ -263,37 +228,23 @@ def challenge_opponent(cookie_jar, opponent_id, match_id):
 def challenge_relevant_friendlies(cookie_jar, own_username):
     relevant_searches = retrieve_relevant_searches(cookie_jar)
 
-    # don't challenge people again if already waiting for reply,
-    # users who are ignored,
-    # players that you have blacklisted for e.g. high ping
-    challenges_awaiting_reply = retrieve_challenges_awaiting_reply(cookie_jar)
+    users_awaiting_reply = retrieve_users_awaiting_reply(cookie_jar)
     ignored_users = retrieve_ignored_users(cookie_jar)
-    blacklisted_players = BLACKLISTED_PLAYERS
+
     challenged_players = []
+    for match in relevant_searches:
+        # special case rules not in Match.relevant()
+        if match.opponent_username == own_username or \
+           match.opponent_username in users_awaiting_reply or \
+           match.opponent_username in ignored_users:
+            continue
 
-    for match_id in relevant_searches:
-        match = relevant_searches[match_id]
-        ladder_name = match["ladder_name"]
-        player_id = match["player_id"]
-        if ladder_name in WHITELISTED_GAMES.keys():
-            opponent_username = match['username']
-            opponent_country = match['country']
+        if not match.relevant():
+            continue
 
-            if opponent_username == own_username or \
-               opponent_username in challenges_awaiting_reply or \
-               opponent_username in ignored_users:
-                continue
-
-            if not match_relevant(match):
-                continue
-
-            if not builtins.debug_smashladder:
-                response = challenge_opponent(cookie_jar, player_id, match_id)
-            else:
-                print('[DEBUG]: Would challenge ' + opponent_username + ' from ' + opponent_country)
-
-            challenged_players.append({ 'username': decorate_username(opponent_username),
-                                        'country': opponent_country })
+        response = challenge_opponent(cookie_jar, match.opponent_id, match.match_id)
+        challenged_players.append({ 'username': decorate_username(match.opponent_username),
+                                    'country': match.opponent_country })
 
     return challenged_players
 
@@ -366,47 +317,30 @@ def process_match_message(message):
 def process_open_challenges(cookie_jar, message):
     message = json.loads(message)
 
-    is_ranked = []
-    ladder_name = []
-    opponent_username = []
-    opponent_country = []
-    match_ids = []
+    matches = []
+    matches_raw = iter(message['open_challenges'].values())
+    for match in matches_raw:
+        if type(match) is dict:
+            match_obj = Match(match)
+            matches.append(match_obj)
 
-    for match_id in message['open_challenges']:
-        if re.match('[0-9]{7,9}', match_id):
-            match_ids.append(match_id)
-            challenge_info = message['open_challenges'][match_id]
-            is_ranked.append(challenge_info['is_ranked'])
-            ladder_name.append(challenge_info['ladder_name'])
-            opponent_username.append(challenge_info['player2']['username'])
-            opponent_country.append(challenge_info['player2']['location']['country']['name'])
-
-    for i, country in enumerate(opponent_country):
-        if player_relevant(country, opponent_username[i]) and \
-           match_relevant(is_ranked=is_ranked[i], ladder_name=ladder_name[i]):
-            if not builtins.debug_smashladder:
-                accept_match_challenge(cookie_jar, match_ids[i])
-            else:
-                print('[DEBUG]: Would accept challenge ' + opponent_username[i] + ' from ' + country)
-
-            return { 'match_id': match_ids[i],
-                     'info': 'Accepted challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i],
-                     'opponent_username': opponent_username[i],
-                     'opponent_country': opponent_country[i] }
+    for match in matches:
+        if match.relevant():
+            accept_match_challenge(cookie_jar, match.match_id)
+            return { 'match': match,
+                     'info': 'Accepted challenge from ' + decorate_username(match.opponent_username) \
+                     + ' from ' + match.opponent_country }
         else:
-            decline_match_challenge(cookie_jar, match_ids[i])
-            return { 'match_id': match_ids[i],
-                     'info': 'Declined challenge from ' + decorate_username(opponent_username[i]) + ' from ' + opponent_country[i],
-                     'opponent_username': opponent_username[i],
-                     'opponent_country': opponent_country[i] }
+            decline_match_challenge(cookie_jar, match.match_id)
+            return { 'match': match,
+                     'info': 'Declined challenge from ' + decorate_username(match.opponent_username) \
+                     + ' from ' + match.opponent_country }
 
-    return { 'match_id': None,
-             'info': 'No awaiting challenges matching config criteria',
-             'opponent_username': None,
-             'opponent_country': None }
+    return { 'match': None,
+             'info': 'No awaiting challenges' }
 
 
-def get_search_info(message):
+def get_new_search_info(message):
     message = json.loads(message)
     new_match = next(iter(message['searches'].values()))
     match = Match(new_match)
@@ -424,8 +358,7 @@ def process_new_search(cookie_jar, message, own_username):
     if not match.relevant():
         return
 
-    if player_relevant(match.opponent_country, match.opponent_username) and \
-       match.opponent_username != own_username:
+    if match.opponent_username != own_username:
         response = challenge_opponent(cookie_jar, match.opponent_id, match.match_id)
         return { 'username': decorate_username(match.opponent_username),
                  'country': match.opponent_country }
@@ -445,35 +378,6 @@ def finished_chatting_with_match(cookie_jar, match_id):
                       content, cookie_jar)
     builtins.current_match_id = None
     builtins.in_match = False
-
-
-def opponent_uses_active_build(match):
-    if melee_id in match['player1']['preferred_builds']:
-        for build in match['player1']['preferred_builds'][melee_id]:
-            if build['name'] == current_fm_build and build['active'] == False:
-                return False
-    return True
-
-
-def match_is_doubles(match):
-    return match['team_size'] == 2
-
-
-def match_relevant(match=None, is_ranked=None, ladder_name=None):
-    if match:
-        is_ranked = match['is_ranked']
-        ladder_name = match['ladder_name']
-
-    if ladder_name != 'Melee':
-        return False
-
-    if not is_ranked and active_config.friendlies:
-        return True
-
-    if is_ranked and active_config.ranked:
-        return True
-
-    return False
 
 
 def send_match_chat_message(cookie_jar, match_id, message):

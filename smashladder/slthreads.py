@@ -74,13 +74,13 @@ class SlSocketThread(SlBaseThread):
             self.qt_print.emit(str(e))
             return
 
-        if processed_message['match_id']:
+        if processed_message['match']:
             self.qt_print.emit(processed_message['info'])
 
         if 'Accepted challenge' in processed_message['info']:
-            self.entered_match.emit(processed_message['match_id'],
-                                    processed_message['opponent_username'],
-                                    processed_message['opponent_country'])
+            self.entered_match.emit(str(processed_message['match'].match_id),
+                                    processed_message['match'].opponent_username,
+                                    processed_message['match'].opponent_country)
 
 
     def process_new_search(self, raw_message):
@@ -98,12 +98,11 @@ class SlSocketThread(SlBaseThread):
 
 
     def process_new_search_idle(self, raw_message):
-        match = sl.get_search_info(raw_message)
+        match = sl.get_new_search_info(raw_message)
         if not match:
             return
 
-        # wrong way to do this, main_window contains enabled setting
-        if match.is_ranked or match.ladder_name != 'Melee':
+        if not match.relevant():
             return
 
         if match.opponent_username in PREFERRED_PLAYERS:
@@ -111,8 +110,7 @@ class SlSocketThread(SlBaseThread):
                                ', preferred player, queued up: ' + match.match_id)
             self.preferred_queued.emit()
             return
-
-        if sl.player_relevant(match.opponent_country, match.opponent_username):
+        else:
             self.qt_print.emit(match.opponent_username + ' (' + str(match.opponent_id) + ')' +
                                ' from ' + match.opponent_country +
                                ' queued up: ' + match.match_id)

@@ -640,9 +640,9 @@ class MainWindow(MovableQWidget):
 
 
     def change_checkbox_config(self):
-        sl.friendlies_enabled = self.friendlies_checkbox.isChecked()
-        sl.ranked_enabled = self.ranked_checkbox.isChecked()
-        sl.doubles_enabled = self.doubles_checkbox.isChecked()
+        sl.active_config.set_friendlies(self.friendlies_checkbox.isChecked())
+        sl.active_config.set_ranked(self.ranked_checkbox.isChecked())
+        sl.active_config.set_doubles(self.doubles_checkbox.isChecked())
         self.socket_thread.priv_chat_enabled = self.priv_chat_checkbox.isChecked()
 
 

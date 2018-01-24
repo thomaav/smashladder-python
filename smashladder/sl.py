@@ -31,6 +31,21 @@ class SlConfig(object):
         self.enabled_games = enabled_games
 
 
+    def set_friendlies(self, val):
+        if type(val) is bool:
+            self.friendlies = val
+
+
+    def set_ranked(self, val):
+        if type(val) is bool:
+            self.ranked = val
+
+
+    def set_doubles(self, val):
+        if type(val) is bool:
+            self.doubles = val
+
+
 active_config = SlConfig()
 
 

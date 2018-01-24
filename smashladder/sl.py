@@ -76,6 +76,10 @@ class Match(object):
         if self.ladder_name not in active_config.enabled_games.keys():
             return False
 
+        if self.opponent_country.lower() not in [c.lower() for c in WHITELISTED_COUNTRIES] or\
+           self.opponent_username.lower() in [p.lower() for p in BLACKLISTED_PLAYERS]:
+            return False
+
         # walk through all preferred builds of opponent to see if we
         # have _any_ matches across any enabled game
         builds_match = False

@@ -62,6 +62,24 @@ class Match(object):
         self.is_ranked = match['is_ranked']
         self.ladder_name = match['ladder_name']
         self.match_id = match['id']
+        self.team_size = match['team_size']
+
+
+    def relevant(self):
+        # first weed out definite irrelevant matches
+        if self.removed:
+            return False
+
+        if self.ladder_name not in active_config.enabled_games.keys():
+            return False
+
+        # now if we match certain config, we're relevant
+        if (not self.is_ranked and active_config.friendlies) or \
+           (self.is_ranked and active_config.ranked) or \
+           (self.team_size == '2' and active_config.doubles):
+            return True
+
+        return False
 
 
 def begin_matchmaking(cookie_jar, team_size, game_id, match_count,
@@ -384,7 +402,7 @@ def process_new_search(cookie_jar, message, own_username):
     if match.removed:
         return
 
-    if not match_relevant(new_match):
+    if not match.relevant():
         return
 
     if not opponent_uses_active_build(new_match):

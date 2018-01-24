@@ -191,14 +191,14 @@ def retrieve_users_awaiting_reply(cookie_jar):
                                 cookie_jar)
     response_body = json.loads(response.text)
 
-    match_info = []
+    users = []
     for match_id in response_body['awaiting_replies']:
         if (re.match('[0-9]{7,9}', match_id)):
             match = response_body['awaiting_replies'][match_id]
             username = match['player1']['username']
-            match_info.append(username)
+            users.append(username)
 
-    return match_info
+    return users
 
 
 def accept_match_challenge(cookie_jar, match_id):

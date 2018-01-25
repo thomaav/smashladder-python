@@ -14,10 +14,6 @@ builtins.search_match_id = None
 builtins.idle = True
 
 
-current_fm_build = 'Faster Melee 5.8.7'
-melee_id = '2'
-
-
 class SlConfig(object):
     def __init__(self,
                  friendlies = True,

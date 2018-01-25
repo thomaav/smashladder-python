@@ -740,7 +740,7 @@ class MainWindow(MovableQWidget):
         elif 'queued up' in selected_line:
             processed_line = (selected_line.strip()[2:]).split(' ')
             username = processed_line[0].replace(',', '')
-            user_id = processed_line[1][1:-2]
+            user_id = processed_line[1][1:-1]
             match_id = processed_line[-1]
 
             def async_challenge():

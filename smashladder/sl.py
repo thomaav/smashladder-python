@@ -443,7 +443,10 @@ def fetch_match_messages(cookie_jar):
     if not response.json()['current_matches']:
         return []
 
-    chat = list(response.json()['current_matches'].values())[0]['chat']['chat_messages']
+    try:
+        chat = list(response.json()['current_matches'].values())[0]['chat']['chat_messages']
+    except TypeError:
+        return []
 
     messages = []
     for message_id in chat:

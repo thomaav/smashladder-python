@@ -618,6 +618,16 @@ class MainWindow(MovableQWidget):
             self.challenge_thread.terminate()
         builtins.idle = False
 
+        # send host code immediately if it is set
+        host_code = self.host_code.text()
+        if host_code:
+            def async_greeting():
+                time.sleep(1.5)
+                sl.send_match_chat_message(self.cookie_jar, match_id, 'heja')
+                sl.send_match_chat_message(self.cookie_jar, match_id, host_code)
+            thr = threading.Thread(target=async_greeting, args=(), kwargs={})
+            thr.start()
+
         QSound.play('static/challenger.wav')
         self.print('Entered match: ' + match_id)
         self.change_status(MMStatus.IN_MATCH)

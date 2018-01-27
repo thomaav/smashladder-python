@@ -313,7 +313,7 @@ class LoginWindow(QWidget):
 
 
     @loading
-    def login(self):
+    def login(self, _=None):
         self.login_status.show()
 
         username = self.username_input.text()

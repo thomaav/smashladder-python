@@ -494,6 +494,7 @@ class MainWindow(MovableQWidget):
             self.cookie_jar = local.load_cookies_from_file(local.COOKIE_FILE)
             self.username = self.cookie_jar['username']
 
+            sl.active_config.set_login(self.username)
             self.socket_thread.set_login(self.cookie_jar)
             self.matchmaking_thread.set_login(self.cookie_jar)
             self.challenge_thread.set_login(self.cookie_jar)

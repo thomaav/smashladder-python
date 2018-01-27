@@ -20,13 +20,15 @@ class SlConfig(object):
                  ranked = False,
                  doubles = False,
                  enabled_games = { 'Melee': '2' },
-                 enabled_builds = ['Faster Melee 5.8.7']
+                 enabled_builds = ['Faster Melee 5.8.7'],
+                 username = None
     ):
         self.friendlies = friendlies
         self.ranked = ranked
         self.doubles = doubles
         self.enabled_games = enabled_games
         self.enabled_builds = enabled_builds
+        self.username = username
 
 
     def set_friendlies(self, val):
@@ -44,6 +46,10 @@ class SlConfig(object):
             self.doubles = val
 
 
+    def set_login(self, username):
+        self.username = username
+
+
 active_config = SlConfig()
 
 
@@ -54,7 +60,6 @@ class Match(object):
             return
 
         self.removed = False
-        self.opponent_username = match['player1']['username']
         self.opponent_id = match['player1']['id']
         self.opponent_country = match['player1']['location']['country']['name']
         self.is_ranked = match['is_ranked']
@@ -62,6 +67,14 @@ class Match(object):
         self.match_id = match['id']
         self.team_size = match['team_size']
         self.preferred_builds = match['player1']['preferred_builds']
+
+        if match['player1']['username'] == active_config.username:
+            try:
+                self.opponent_username =  match['player2']['username']
+            except KeyError:
+                self.opponent_username = match['player1']['username']
+        else:
+            self.opponent_username = match['player1']['username']
 
 
     def relevant(self):

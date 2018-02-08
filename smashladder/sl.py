@@ -60,8 +60,6 @@ class Match(object):
             return
 
         self.removed = False
-        self.opponent_id = match['player1']['id']
-        self.opponent_country = match['player1']['location']['country']['name']
         self.is_ranked = match['is_ranked']
         self.ladder_name = match['ladder_name']
         self.match_id = match['id']
@@ -71,10 +69,16 @@ class Match(object):
         if match['player1']['username'] == active_config.username:
             try:
                 self.opponent_username =  match['player2']['username']
+                self.opponent_id = match['player2']['id']
+                self.opponent_country = match['player2']['location']['country']['name']
             except KeyError:
                 self.opponent_username = match['player1']['username']
+                self.opponent_id = match['player1']['id']
+                self.opponent_country = match['player1']['location']['country']['name']
         else:
             self.opponent_username = match['player1']['username']
+            self.opponent_id = match['player1']['id']
+            self.opponent_country = match['player1']['location']['country']['name']
 
 
     def relevant(self):
